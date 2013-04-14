@@ -23,7 +23,7 @@
 .. moduleauthor:: Caleb Coffie <CalebCoffie@gmail.com>
 """
 
-#from gettext import gettext as _    #For Translations
+from gettext import gettext as _    #For Translations
 import gi
 from sugar3.graphics.toolbarbox import ToolbarBox
 from sugar3.graphics.toolbarbox import ToolbarButton
@@ -35,7 +35,7 @@ from gi.repository import Gtk
 class Gui (Gtk.Box):
     def __init__(self, activity):
         print "GUI 1"
-        #self.set_orientation(Gtk.Orientation.VERTICAL)
+        self.set_orientation(Gtk.Orientation.VERTICAL)
         print "GUI 2"
         Gtk.Box(orientation=Gtk.Orientation.VERTICAL).__init__(self)
         print "GUI 3"
@@ -46,24 +46,34 @@ class Gui (Gtk.Box):
         
         #Add movie window
         self.movie_window = Gtk.DrawingArea()
+        print "GUI 6"
         self.movie_window_preview = Gtk.DrawingArea()
+        print "GUI 7"
         mov_box.pack_start(self.movie_window, expand=True, fill=True, padding=0)
+        print "GUI 8"
         mov_box.pack_start(self.movie_window_preview, expand=True, fill=True, padding=0)
+        print "GUI 9"
 
         self.pack_start(mov_box, expand=True, fill=True, padding=0)
+        print "GUI 10"
         # Add Chat section
         ##################
 
         # Chat expander allows chat to be hidden/shown
-        chat_expander = Gtk.Expander(_("Chat"))
+        chat_expander = Gtk.Expander(label=(_("Chat")))
         chat_expander.set_expanded(True)
-        self.pack_start(chat_expander, expand=False, fill=True, padding=0)
+        print "10.5"
+        self.pack_start(chat_expander, False, True, 0)
+
+        print "11"
 
         chat_holder = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        print "12"
         chat_expander.add(chat_holder)
-
+        print "13"
         # Create entry and history view for chat
         chat_history = Gtk.ScrolledWindow()
+        print "14"
         chat_history.set_policy(Gtk.POLICY_NEVER, Gtk.POLICY_AUTOMATIC)
 
         self.chat_text = Gtk.TextBuffer()
