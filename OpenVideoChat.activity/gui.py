@@ -64,10 +64,11 @@ class Gui(Gtk.Grid):
         # Append Toolbar
         self.activity.set_toolbar_box(self.build_toolbar())
 
-        # Disable GUI Components until network connection established
-
         # Add Resize Event
         self.connect('check-resize', self.resized)
+
+        # Disable GUI Components until network connections established
+        self.disable_gui_features()
 
         # Display GUI
         self.show()
@@ -83,6 +84,7 @@ class Gui(Gtk.Grid):
         video_fixed.put(self.movie_window_preview, 0, 0)
         video_fixed.set_halign(Gtk.Align.START)
         video_fixed.set_valign(Gtk.Align.START)
+        video_fixed.show()
 
         # Use event box for background coloring
         video_eventbox = Gtk.EventBox()
@@ -90,7 +92,7 @@ class Gui(Gtk.Grid):
         video_eventbox.set_hexpand(True)
         video_eventbox.set_vexpand(True)
         video_eventbox.add(video_fixed)
-        video_eventbox.show_all()
+        video_eventbox.show()
 
         # Return Overlay Container
         return video_eventbox
@@ -172,7 +174,7 @@ class Gui(Gtk.Grid):
         # Create stop button
         toolbar_box.toolbar.insert(StopButton(self.activity), -1)
 
-        # Run Toggles
+        # Run Toggles to assign defaults
         self.run_toggles()
 
         # Display all components & Return
@@ -184,41 +186,28 @@ class Gui(Gtk.Grid):
         self.toggle_audio(None)
 
     def toggle_video(self, trigger):
-        if self.activity.get_stream():
-            self.settings_buttons["toggle_video"].set_sensitive(True)
-            if self.settings_buttons["toggle_video"].get_icon_name() == "activity-stop":
-                self.movie_window.hide()
-                self.movie_window_preview_width, self.movie_window_preview_height = False, False
-                self.settings_buttons["toggle_video"].set_icon_name("activity-start")
-                self.settings_buttons["toggle_video"].set_tooltip_text("Start Video")
-                # Call to GStreamer to restart video
-            else:
-                self.movie_window.show()
-                self.movie_window_preview_width, self.movie_window_preview_height = 320, 240
-                self.settings_buttons["toggle_video"].set_icon_name("activity-stop")
-                self.settings_buttons["toggle_video"].set_tooltip_text("Stop Video")
-                # Call to GStreamer to end video
-        else:
-            self.settings_buttons["toggle_video"].set_sensitive(False)
+        if self.settings_buttons["toggle_video"].get_icon_name() == "activity-stop":
+            self.movie_window.hide()
+            self.movie_window_preview_width, self.movie_window_preview_height = False, False
             self.settings_buttons["toggle_video"].set_icon_name("activity-start")
             self.settings_buttons["toggle_video"].set_tooltip_text("Start Video")
-            self.movie_window.hide()
+            # Call to GStreamer to restart video
+        else:
+            self.movie_window.show()
+            self.movie_window_preview_width, self.movie_window_preview_height = 320, 240
+            self.settings_buttons["toggle_video"].set_icon_name("activity-stop")
+            self.settings_buttons["toggle_video"].set_tooltip_text("Stop Video")
+            # Call to GStreamer to end video
 
     def toggle_audio(self, trigger):
-        if self.activity.get_stream():
-            self.settings_buttons["toggle_audio"].set_sensitive(True)
-            if self.settings_buttons["toggle_audio"].get_icon_name() == "speaker-000":
-                self.settings_buttons["toggle_audio"].set_icon_name("speaker-100")
-                self.settings_buttons["toggle_audio"].set_tooltip_text("Turn on Sound")
-                # Call to GStreamer to restart audio
-            else:
-                self.settings_buttons["toggle_audio"].set_icon_name("speaker-000")
-                self.settings_buttons["toggle_audio"].set_tooltip_text("Mute Sound")
-                # Call to GStreamer to end audio
-        else:
-            self.settings_buttons["toggle_audio"].set_sensitive(False)
+        if self.settings_buttons["toggle_audio"].get_icon_name() == "speaker-000":
             self.settings_buttons["toggle_audio"].set_icon_name("speaker-100")
             self.settings_buttons["toggle_audio"].set_tooltip_text("Turn on Sound")
+            # Call to GStreamer to restart audio
+        else:
+            self.settings_buttons["toggle_audio"].set_icon_name("speaker-000")
+            self.settings_buttons["toggle_audio"].set_tooltip_text("Mute Sound")
+            # Call to GStreamer to end audio
 
     def get_history(self):
         return self.chat_text.get_text(
@@ -237,14 +226,12 @@ class Gui(Gtk.Grid):
             self.chat_entry.set_text("")
 
     def force_redraw(self, trigger):
-        # Fixme: This should not be required, this is a hack for now until
-        # a better solution that works is found
         # With fixed for overlay order of show() matters
+        # This method may not be necessary with GSTStreamer 1.0 and was formerly marked as "FIXME:"
         self.movie_window.hide()
         self.movie_window_preview.hide()
         self.movie_window_preview.show()
-        if self.activity.get_stream():
-            self.movie_window.show()
+        self.movie_window.show()
 
     def render_preview(self, source):
         source.set_xwindow_id(self.movie_window_preview.get_property('window').get_xid())
@@ -267,3 +254,25 @@ class Gui(Gtk.Grid):
         self.movie_window.set_size_request(
                 self.movie_window.get_parent().get_parent().get_allocation().width,
                 self.movie_window.get_parent().get_parent().get_allocation().height)
+
+    def enable_gui_features(self):
+        self.enable_net_options()
+        self.enable_toolbar_options()
+
+    def disable_gui_features(self):
+        self.disable_net_options()
+        self.disable_toolbar_options()
+
+    def enable_net_options(self):
+        self.chat_entry.set_sensitive(true)
+
+    def disable_net_options(self):
+        self.chat_entry.set_sensitive(False)
+
+    def enable_toolbar_options(self):
+        self.settings_buttons["toggle_audio"].set_sensitive(True)
+        self.settings_buttons["toggle_video"].set_sensitive(True)
+
+    def disable_toolbar_options(self):
+        self.settings_buttons["toggle_audio"].set_sensitive(False)
+        self.settings_buttons["toggle_video"].set_sensitive(False)
