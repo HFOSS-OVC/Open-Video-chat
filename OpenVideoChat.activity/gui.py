@@ -64,6 +64,9 @@ class Gui(Gtk.Grid):
         # Append Toolbar
         self.activity.set_toolbar_box(self.build_toolbar())
 
+        # Disable GUI Components until network connection established
+
+
         # Display GUI
         self.show()
 
@@ -242,18 +245,7 @@ class Gui(Gtk.Grid):
             self.movie_window.show()
 
     def render_preview(self, source):
-        if self.movie_window_preview_height:
-            self.movie_window_preview.set_size_request(
-                    self.movie_window_preview.get_parent().get_parent().get_allocation().width,
-                    self.movie_window_preview.get_parent().get_parent().get_allocation().height)
-        else:
-            self.movie_window_preview.set_size_request(
-                    self.movie_window_preview_width,
-                    self.movie_window_preview_height)
         source.set_xwindow_id(self.movie_window_preview.get_property('window').get_xid())
 
     def render_incoming(self, source):
-        self.movie_window.set_size_request(
-                self.movie_window.get_parent().get_parent().get_allocation().width,
-                self.movie_window.get_parent().get_parent().get_allocation().height)
         source.set_xwindow_id(self.movie_window.get_property('window').get_xid())
