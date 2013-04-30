@@ -94,12 +94,13 @@ class OpenVideoChatActivity(Activity):
         return True
 
     def _alert(self, title, text=None, timeout=5):
-        alert = NotifyAlert(timeout=timeout)
-        alert.props.title = title
-        alert.props.msg = text
-        self.add_alert(alert)
-        alert.connect('response', self._alert_cancel_cb)
-        alert.show()
+        if text != None:
+            alert = NotifyAlert(timeout=timeout)
+            alert.props.title = title
+            alert.props.msg = text
+            self.add_alert(alert)
+            alert.connect('response', self._alert_cancel_cb)
+            alert.show()
 
     def _alert_cancel_cb(self, alert, response_id):
         self.remove_alert(alert)
