@@ -48,10 +48,6 @@ from gst_stack import GSTStack
 from network_stack import NetworkStack
 
 
-# Temporary Constants
-RECEIVING_STREAM = False
-
-
 class OpenVideoChatActivity(Activity):
 
     def __init__(self, handle):
