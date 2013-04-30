@@ -26,7 +26,7 @@
 
 
 # External Imports
-import logger
+import logging
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gettext import gettext as _

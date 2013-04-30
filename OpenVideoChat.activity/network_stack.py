@@ -26,7 +26,7 @@
 
 
 # External Imports
-import logger
+import logging
 import telepathy
 from sugar3.presence import presenceservice
 from sugar3.presence.tubeconn import TubeConnection

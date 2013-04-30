@@ -26,7 +26,7 @@
 
 
 #External Imports
-import logger
+import logging
 import fcntl
 import array
 import socket
