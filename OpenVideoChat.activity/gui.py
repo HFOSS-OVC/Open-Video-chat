@@ -73,6 +73,9 @@ class Gui(Gtk.Grid):
         # Display GUI
         self.show()
 
+        # Status Message
+        logger.debug("Finished Preparing GUI")
+
     def build_video(self):
         # Prepare Video Display
         self.movie_window_preview = Gtk.DrawingArea()
@@ -240,6 +243,7 @@ class Gui(Gtk.Grid):
         source.set_xwindow_id(self.movie_window.get_property('window').get_xid())
 
     def resized(self):
+        logger.debug("Display has been resized")
         # Resize Preview
         if self.movie_window_preview_height:
             self.movie_window_preview.set_size_request(

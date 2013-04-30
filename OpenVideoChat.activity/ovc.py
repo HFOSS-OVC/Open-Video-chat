@@ -66,12 +66,14 @@ class OpenVideoChatActivity(Activity):
         ###########
         # Setup Gui
         ###########
+        logger.debug("Preparing GUI")
         self.set_canvas(Gui(self))
 
 
         #####################
         # Setup Network Stack
         #####################
+        logger.debug("Preparing Network Stack")
         # self.netstack = NetworkStack(self)
         # self._sh_hnd = self.connect('shared', self.netstack.shared_cb)
         # self._jo_hnd = self.connect('joined', self.netstack.joined_cb)
@@ -79,14 +81,14 @@ class OpenVideoChatActivity(Activity):
         #################
         # Setup Pipeline
         #################
-        print "Setting up GStreamer"
+        logger.debug("Setting up GSTStack")
         self.gststack = GSTStack(self.get_canvas().render_preview, self.get_canvas().render_incoming)
         self.gststack.build_preview()
         self.gststack.build_incoming_pipeline()
         GObject.idle_add(self.gststack.start_stop_incoming_pipeline, True)
 
     def can_close(self):
-        print "Closing, stopping pipelines"
+        logger.debug("Shutting down Network and GST")
         self.gststack.start_stop_incoming_pipeline(False)
         self.gststack.start_stop_outgoing_pipeline(False)
         return True
