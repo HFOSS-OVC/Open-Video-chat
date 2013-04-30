@@ -66,6 +66,8 @@ class Gui(Gtk.Grid):
 
         # Disable GUI Components until network connection established
 
+        # Add Resize Event
+        self.connect('check-resize', self.resized)
 
         # Display GUI
         self.show()
@@ -249,3 +251,19 @@ class Gui(Gtk.Grid):
 
     def render_incoming(self, source):
         source.set_xwindow_id(self.movie_window.get_property('window').get_xid())
+
+    def resized(self):
+        # Resize Preview
+        if self.movie_window_preview_height:
+            self.movie_window_preview.set_size_request(
+                    self.movie_window_preview.get_parent().get_parent().get_allocation().width,
+                    self.movie_window_preview.get_parent().get_parent().get_allocation().height)
+        else:
+            self.movie_window_preview.set_size_request(
+                    self.movie_window_preview_width,
+                    self.movie_window_preview_height)
+
+        # Resize Incoming
+        self.movie_window.set_size_request(
+                self.movie_window.get_parent().get_parent().get_allocation().width,
+                self.movie_window.get_parent().get_parent().get_allocation().height)
