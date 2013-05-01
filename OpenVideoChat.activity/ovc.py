@@ -48,19 +48,17 @@ from gst_stack import GSTStack
 from network_stack import NetworkStack
 
 
+# Constants
+SUGAR_MAX_PARTICIPANTS = 2
+
+
 class OpenVideoChatActivity(Activity):
 
     def __init__(self, handle):
         Activity.__init__(self, handle)
 
         # Self-Enforced max_participants
-        self.max_participants = 2
-
-        # Revise logical checks to shared_activity flags and remove these:
-        if self.shared_activity:
-            self.sent_ip = 1
-        else:
-            self.sent_ip = 2
+        self.max_participants = SUGAR_MAX_PARTICIPANTS
 
 
         ###########
