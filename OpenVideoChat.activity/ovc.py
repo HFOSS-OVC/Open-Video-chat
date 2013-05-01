@@ -118,10 +118,9 @@ class OpenVideoChatActivity(Activity):
             file.close()
 
     def read_file(self, file_path):
-        file = open(file_path)
+        file = open(file_path, 'r')
         try:
-            log = file.readline()
-            for line in log:
+            for line in file:
                 self.get_canvas().chat_write_line(line)
         finally:
             file.close()
