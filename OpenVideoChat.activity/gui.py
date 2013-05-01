@@ -32,6 +32,7 @@ from gi.repository import Gtk
 from gi.repository import Gdk
 from gettext import gettext as _
 from sugar3.activity.widgets import StopButton
+from sugar3.activity.widgets import ShareButton
 from sugar3.graphics.toolbutton import ToolButton
 from sugar3.graphics.toolbarbox import ToolbarBox
 from sugar3.activity.widgets import ActivityButton
@@ -193,6 +194,9 @@ class Gui(Gtk.Grid):
         separator.props.draw = False
         separator.set_expand(True)
         toolbar_box.toolbar.insert(separator, -1)
+
+        # Create Sharing Button
+        toolbar_box.toolbar.insert(ShareButton(activity), -1)
 
         # Create stop button
         toolbar_box.toolbar.insert(StopButton(activity), -1)
