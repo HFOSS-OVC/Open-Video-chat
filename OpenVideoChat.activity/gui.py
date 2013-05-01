@@ -45,6 +45,7 @@ logger = logging.getLogger('ovc-activity')
 # Constants
 MAX_MESSAGE_SIZE = 200
 MIN_CHAT_HEIGHT = 180
+DEFAULT_PREVIEW_SIZE = 25
 
 
 class Gui(Gtk.Grid):
@@ -189,15 +190,21 @@ class Gui(Gtk.Grid):
         self.toggle_audio(None)
 
     def toggle_video(self, trigger):
+
+        # Do I call self.resized() or some other thing?
+
         if self.settings_buttons["toggle_video"].get_icon_name() == "activity-stop":
             self.movie_window.hide()
-            self.movie_window_preview_width, self.movie_window_preview_height = False, False
+            # self.movie_window_preview_width, self.movie_window_preview_height = False, False
             self.settings_buttons["toggle_video"].set_icon_name("activity-start")
             self.settings_buttons["toggle_video"].set_tooltip_text("Start Video")
             # Call to GStreamer to restart video
         else:
             self.movie_window.show()
-            self.movie_window_preview_width, self.movie_window_preview_height = 320, 240
+
+            # Adjust this to use percent size?
+            # self.movie_window_preview_width, self.movie_window_preview_height = 320, 240
+
             self.settings_buttons["toggle_video"].set_icon_name("activity-stop")
             self.settings_buttons["toggle_video"].set_tooltip_text("Stop Video")
             # Call to GStreamer to end video
@@ -251,8 +258,8 @@ class Gui(Gtk.Grid):
                     self.movie_window_preview.get_parent().get_parent().get_allocation().height)
         else:
             self.movie_window_preview.set_size_request(
-                    self.movie_window_preview_width,
-                    self.movie_window_preview_height)
+                    self.movie_window_preview.get_parent().get_parent().get_allocation().width * DEFAULT_PREVIEW_SIZE,
+                    self.movie_window_preview.get_parent().get_parent().get_allocation().height * DEFAULT_PREVIEW_SIZE)
 
         # Resize Incoming
         self.movie_window.set_size_request(
@@ -280,3 +287,10 @@ class Gui(Gtk.Grid):
     def disable_toolbar_options(self):
         self.settings_buttons["toggle_audio"].set_sensitive(False)
         self.settings_buttons["toggle_video"].set_sensitive(False)
+
+    def toggle_preview(self):
+        # Toggle Display
+
+    def toggle_incoming(self):
+        # Toggle Display
+
