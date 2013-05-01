@@ -260,6 +260,7 @@ class Gui(Gtk.Grid):
     def enable_net_options(self):
         self.chat_send_button.set_sensitive(True)
         self.chat_entry.set_sensitive(True)
+        self.chat_entry.grab_focus()
 
     def disable_net_options(self):
         self.chat_send_button.set_sensitive(False)
