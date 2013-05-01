@@ -20,7 +20,7 @@
 .. moduleauthor:: Justin Lewis <jlew.blackout@gmail.com>
 .. moduleauthor:: Taylor Rose <tjr1351@rit.edu>
 .. moduleauthor:: Fran Rogers <fran@dumetella.net>
-.. moduleauthro:: Remy DeCausemaker <remyd@civx.us>
+.. moduleauthor:: Remy DeCausemaker <remyd@civx.us>
 .. moduleauthor:: Casey DeLorme <cxd4280@rit.edu>
 """
 
