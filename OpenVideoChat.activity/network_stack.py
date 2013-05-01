@@ -56,51 +56,52 @@ logger.setLevel(logging.DEBUG)
 class NetworkStack(object):
 
     def __init__(self):
-
-        # Grab Owner
-        self.owner = presenceservice.get_instance().get_owner()
-
-        # Grab Username (more logic in future)
-        if self.owner:
-            self.username = self.owner.nick
-        else:
-            self.username = "???"
-
+        # Establish other stuff
+        logger.info("Hello from Network Stack")
 
     def joined_cb(self, sender):
         # Test Confirmation who is sender
         logger.debug(dir(sender));
 
-        if sender.shared_activity:
-            for buddy in sender.shared_activity.get_joined_buddies():
-                logger.debug(dir(buddy))# Test
-                # Call Method
-        else:
-            # Establish Handler
-
-        # Check for existing connections
-
-        # Else establish singular buddy-connect handler
-
-
-        # Disconnect Sharing Handler
+        # Disconnect Sharing Handler if found
         if sender.sharing_handler:
             sender.disconnect(sender.sharing_handler)
 
-        # Add Internal Network Disconnection Handler
-        # Need to test that multiple locations can add handlers to the same objects events
-
+        # Execute setup
+        self.setup(sender)
 
     def shared_cb(self, sender):
         # Test Confirmation who is sender
         logger.debug(dir(sender));
 
+        # Disconnect Sharing Handler if found
+        if sender.sharing_handler:
+            sender.disconnect(sender.sharing_handler)
 
+        # Execute setup
+        self.setup(sender)
 
-        # Disconnect Handlers
-        sender.disconnect(sender.joined_handle_id)
-        sender.disconnect(sender.shared_handle_id)
+    def setup(self, activity):
 
+        # Grab Username & Apply Owner
+        self.owner = activity.owner
+        if self.owner.nick:
+            self.username = self.owner.nick
+
+        # If a member is connected locally we want to set them locally
+
+        # Run Exchange of IP Address
+
+        # if sender.shared_activity:
+        #     for buddy in sender.shared_activity.get_joined_buddies():
+        #         logger.debug(dir(buddy))# Test
+        #         # Call Method
+        # else:
+        #     # Establish Handler
+
+        # Check for existing connections
+
+        # Else establish singular buddy-connect handler
 
 
     # def add_buddy(self, buddy):
