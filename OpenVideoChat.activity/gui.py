@@ -349,7 +349,7 @@ class Gui(Gtk.Grid):
     def send_message(self, sender):
         if self.chat_entry.get_text() != "":
             message = self.chat_entry.get_text()
-            self.receive_message(self.network_stack.owner.nick, message)
+            self.receive_message(self.network_stack.username, message)
             self.network_stack.send_message(message)
             self.chat_entry.set_text("")
             self.chat_entry.grab_focus()

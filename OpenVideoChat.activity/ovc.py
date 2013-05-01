@@ -79,11 +79,23 @@ class OpenVideoChatActivity(Activity):
 
         """ Setup Network Stack """
         logger.debug("Preparing Network Stack")
-        # self.netstack = NetworkStack(self)
-        # self._sh_hnd = self.connect('shared', self.netstack.shared_cb)
-        # self._jo_hnd = self.connect('joined', self.netstack.joined_cb)
-
+        self.network_stack = NetworkStack()
+        self.establish_activity_sharing()
         # self.get_canvas().set_network_stack(self.network_stack)
+
+
+    # Modularly apply single sharing handler, can be recalled on disconnect to re-establish event handling
+    def establish_activity_sharing(self):
+        # The get_shared() may only be a possibility in instances that accept multiple connections
+        # Such as the chat system so I will have to run some tests with logger and real connections.
+        if self.shared_activity:
+            if self.get_shared():
+                self.network_stack.joined_cb(self)
+            else:
+                self.sharing_handler = self.connect('joined', self.network_stack.joined_cb)
+        else:
+            self.sharing_handler = self.connect('shared', self.network_stack.shared_cb)
+
 
     # Automate Tear-Down of OVC Components
     def can_close(self):

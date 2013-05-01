@@ -27,9 +27,21 @@
 
 # External Imports
 import logging
-import telepathy
+from telepathy.client import Connection
+from telepathy.client import Channel
 from sugar3.presence import presenceservice
-from sugar3.presence.tubeconn import TubeConnection
+
+
+# Questionable Imports
+# import json
+# from telepathy.interfaces import CHANNEL_INTERFACE
+# from telepathy.interfaces import CHANNEL_INTERFACE_GROUP
+# from telepathy.interfaces import CHANNEL_TYPE_TEXT
+# from telepathy.interfaces import CONN_INTERFACE_ALIASING
+# from telepathy.constants import CHANNEL_GROUP_FLAG_CHANNEL_SPECIFIC_HANDLES
+# from telepathy.constants import CHANNEL_TEXT_MESSAGE_TYPE_NORMAL
+# from telepathy.client import Connection
+# from telepathy.client import Channel
 
 
 # Define Logger for Logging & DEBUG level for Development
@@ -39,114 +51,158 @@ logger.setLevel(logging.DEBUG)
 
 class NetworkStack(object):
 
-    def __init__(self, activity):
-        self.activity = activity
-        self.controlTube = None
+    def __init__(self):
 
-    def add_buddy(self, buddy):
-        """
-        Passes buddy nick to ovc
-        """
-        if buddy == presenceservice.get_instance().get_owner():
-            return
-        if buddy:
-            nick = buddy.props.nick
+        # Grab Owner
+        self.owner = presenceservice.get_instance().get_owner()
+
+        # Grab Username (more logic in future)
+        if self.owner:
+            self.username = self.owner.nick
         else:
-            nick = '???'
-        self.activity.net_cb('buddy_add', nick)
+            self.username = "???"
 
-    def rem_buddy(self, buddy):
-        """
-        Remove buddy nick
-        """
-        if buddy:
-            nick = buddy.props.nick
+
+    def joined_cb(self, sender):
+        # Test Confirmation who is sender
+        logger.debug(dir(sender));
+
+        if sender.shared_activity:
+            for buddy in sender.shared_activity.get_joined_buddies():
+                logger.debug(dir(buddy))# Test
+                # Call Method
         else:
-            nick = '???'
-        self.activity.net_cb('buddy_rem', nick)
+            # Establish Handler
 
-    def _buddy_joined_cb(self, activity, buddy):
-        """Called when a buddy joins the shared activity."""
-        self.add_buddy(buddy)
+        # Check for existing connections
 
-    def _buddy_left_cb(self, activity, buddy):
-        """Called when a buddy leaves the shared activity."""
-        self.rem_buddy(buddy)
+        # Else establish singular buddy-connect handler
 
-    def joined_cb(self, activity):
-        """
-        Called when joining an existing activity
-        """
-        for buddy in self.activity.shared_activity.get_joined_buddies():
-            self.add_buddy(buddy)
 
-        self.watch_for_tubes()
+        # Disconnect Sharing Handler
+        if sender.sharing_handler:
+            sender.disconnect(sender.sharing_handler)
 
-    def shared_cb(self, activity):
-        """
-        Called when setting an activity to be shared
-        """
-        self.watch_for_tubes()
+        # Add Internal Network Disconnection Handler
+        # Need to test that multiple locations can add handlers to the same objects events
 
-        # Offer DBus Tube
-        self.tubes_chan[telepathy.CHANNEL_TYPE_TUBES].OfferDBusTube(
-                tube_speak.SERVICE,
-                {})
 
-    def watch_for_tubes(self):
-        """
-        This method sets up the listeners for new tube connections
-        """
+    def shared_cb(self, sender):
+        # Test Confirmation who is sender
+        logger.debug(dir(sender));
 
-        self.conn = self.activity._shared_activity.telepathy_conn
-        self.tubes_chan = self.activity._shared_activity.telepathy_tubes_chan
 
-        self.tubes_chan[telepathy.CHANNEL_TYPE_TUBES].connect_to_signal(
-                'NewTube',
-                self._new_tube_cb)
 
-        # Register handlers while supplying them in return
-        self.tubes_chan[telepathy.CHANNEL_TYPE_TUBES].ListTubes(
-                reply_handler=self._list_tubes_reply_cb,
-                error_handler=self._list_tubes_error_cb)
+        # Disconnect Handlers
+        sender.disconnect(sender.joined_handle_id)
+        sender.disconnect(sender.shared_handle_id)
 
-        # Register budy join/leave
-        self.activity._shared_activity.connect(
-                'buddy-joined',
-                self._buddy_joined_cb)
-        self.activity._shared_activity.connect(
-                'buddy-left',
-                self._buddy_left_cb)
 
-    def _list_tubes_reply_cb(self, tubes):
-        """
-        Loops through tube list and passes it to _new_tube_cb
-        """
-        for tube_info in tubes:
-            self._new_tube_cb(*tube_info)
 
-    def _list_tubes_error_cb(self, e):
-        self.activity._alert('ListTubes() failed: %s' % e)
+    # def add_buddy(self, buddy):
+    #     """
+    #     Passes buddy nick to ovc
+    #     """
+    #     if buddy == presenceservice.get_instance().get_owner():
+    #         return
+    #     if buddy:
+    #         nick = buddy.props.nick
+    #     else:
+    #         nick = '???'
+    #     self.activity.net_cb('buddy_add', nick)
 
-    def _new_tube_cb(self, id, initiator, type, service, params, state):
+    # def rem_buddy(self, buddy):
+    #     """
+    #     Remove buddy nick
+    #     """
+    #     if buddy:
+    #         nick = buddy.props.nick
+    #     else:
+    #         nick = '???'
+    #     self.activity.net_cb('buddy_rem', nick)
 
-        if (type == telepathy.TUBE_TYPE_DBUS and service == tube_speak.SERVICE):
-            if state == telepathy.TUBE_STATE_LOCAL_PENDING:
-                self.tubes_chan[telepathy.CHANNEL_TYPE_TUBES].AcceptDBusTube(id)
+    # def _buddy_joined_cb(self, activity, buddy):
+    #     """Called when a buddy joins the shared activity."""
+    #     self.add_buddy(buddy)
 
-            # Create Tube Connection
-            tube_conn = TubeConnection(self.conn,
-                self.tubes_chan[telepathy.CHANNEL_TYPE_TUBES], id,
-                group_iface=self.tubes_chan[telepathy.CHANNEL_INTERFACE_GROUP])
+    # def _buddy_left_cb(self, activity, buddy):
+    #     """Called when a buddy leaves the shared activity."""
+    #     self.rem_buddy(buddy)
 
-            self.controlTube = TubeSpeak(tube_conn, self.activity.net_cb)
+    # def joined_cb(self, activity):
+    #     """
+    #     Called when joining an existing activity
+    #     """
+    #     for buddy in self.activity.shared_activity.get_joined_buddies():
+    #         self.add_buddy(buddy)
 
-        #elif (type == telepathy.TUBE_TYPE_STREAM and
-        #service == DIST_STREAM_SERVICE):
-        #        # Data tube, store for later
-        #        _logger.debug("New data tube added")
-        #        self.unused_download_tubes.add(id)
+    #     self.watch_for_tubes()
 
-    def get_tube_handle(self):
-        if self.controlTube:
-            return self.controlTube
+    # def shared_cb(self, activity):
+    #     """
+    #     Called when setting an activity to be shared
+    #     """
+    #     self.watch_for_tubes()
+
+    #     # Offer DBus Tube
+    #     self.tubes_chan[telepathy.CHANNEL_TYPE_TUBES].OfferDBusTube(
+    #             tube_speak.SERVICE,
+    #             {})
+
+    # def watch_for_tubes(self):
+    #     """
+    #     This method sets up the listeners for new tube connections
+    #     """
+
+    #     self.conn = self.activity._shared_activity.telepathy_conn
+    #     self.tubes_chan = self.activity._shared_activity.telepathy_tubes_chan
+
+    #     self.tubes_chan[telepathy.CHANNEL_TYPE_TUBES].connect_to_signal(
+    #             'NewTube',
+    #             self._new_tube_cb)
+
+    #     # Register handlers while supplying them in return
+    #     self.tubes_chan[telepathy.CHANNEL_TYPE_TUBES].ListTubes(
+    #             reply_handler=self._list_tubes_reply_cb,
+    #             error_handler=self._list_tubes_error_cb)
+
+    #     # Register budy join/leave
+    #     self.activity._shared_activity.connect(
+    #             'buddy-joined',
+    #             self._buddy_joined_cb)
+    #     self.activity._shared_activity.connect(
+    #             'buddy-left',
+    #             self._buddy_left_cb)
+
+    # def _list_tubes_reply_cb(self, tubes):
+    #     """
+    #     Loops through tube list and passes it to _new_tube_cb
+    #     """
+    #     for tube_info in tubes:
+    #         self._new_tube_cb(*tube_info)
+
+    # def _list_tubes_error_cb(self, e):
+    #     self.activity._alert('ListTubes() failed: %s' % e)
+
+    # def _new_tube_cb(self, id, initiator, type, service, params, state):
+
+    #     if (type == telepathy.TUBE_TYPE_DBUS and service == tube_speak.SERVICE):
+    #         if state == telepathy.TUBE_STATE_LOCAL_PENDING:
+    #             self.tubes_chan[telepathy.CHANNEL_TYPE_TUBES].AcceptDBusTube(id)
+
+    #         # Create Tube Connection
+    #         tube_conn = TubeConnection(self.conn,
+    #             self.tubes_chan[telepathy.CHANNEL_TYPE_TUBES], id,
+    #             group_iface=self.tubes_chan[telepathy.CHANNEL_INTERFACE_GROUP])
+
+    #         self.controlTube = TubeSpeak(tube_conn, self.activity.net_cb)
+
+    #     #elif (type == telepathy.TUBE_TYPE_STREAM and
+    #     #service == DIST_STREAM_SERVICE):
+    #     #        # Data tube, store for later
+    #     #        _logger.debug("New data tube added")
+    #     #        self.unused_download_tubes.add(id)
+
+    # def get_tube_handle(self):
+    #     if self.controlTube:
+    #         return self.controlTube
