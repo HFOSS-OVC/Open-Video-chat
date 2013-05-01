@@ -27,6 +27,7 @@
 
 # External Imports
 import logging
+import datetime
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gettext import gettext as _
@@ -341,14 +342,15 @@ class Gui(Gtk.Grid):
     def chat_write_line(self, line):
         self.chat_text.insert(self.chat_text.get_end_iter(), line, -1)
 
-    def receive_message(self, message):
-        self.chat_text.insert(self.chat_text.get_end_iter(), "%s\n" % message, -1)
+    def receive_message(self, username, message):
+        self.chat_text.insert(self.chat_text.get_end_iter(), "%s [%s]: %s\n" % (username, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), message), -1)
         self.text_view.scroll_to_iter(self.chat_text.get_end_iter(), 0.1, False, 0.0, 0.0)
 
     def send_message(self, sender):
-        if (self.chat_entry.get_text() != ""):
-            self.receive_message(self.chat_entry.get_text())# Temporary for Testing Non-Networked
-            # self.activity.send_message(self.chat_entry.get_text())
+        if self.chat_entry.get_text() != "":
+            message = self.chat_entry.get_text()
+            self.receive_message(self.network_stack.owner.nick, message)
+            self.network_stack.send_message(message)
             self.chat_entry.set_text("")
             self.chat_entry.grab_focus()
 
