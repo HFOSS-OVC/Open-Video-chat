@@ -345,7 +345,21 @@ class Gui(Gtk.Grid):
 
     """ Event Connected Methods """
 
+    def connected_to_network(self):
+        # Handle Establishing Connection
+        return False
 
+    def disconnected_from_network(self):
+        # Handle Deconstructing Connection
+        return False
+
+    def connect_incoming_movie(self):
+        # Handle Incoming Construction
+        return False
+
+    def disconnect_incoming_movie(self):
+        # Handle Incoming Deconstruction
+        return False
 
 
     """ Hacky Solutions Below This Point """
