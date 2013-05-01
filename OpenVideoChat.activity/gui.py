@@ -247,9 +247,11 @@ class Gui(Gtk.Grid):
         # Call Preview Visibility Toggle
         self.toggle_preview_visibility()
 
-    def enable_gui_features(self):
-        self.enable_net_options()
-        self.enable_toolbar_options()
+    # There may not be any situation where all items would need to be enabled at once
+    # As each enable is situation specific, while disable is setup specific
+    # def enable_gui_features(self):
+    #     self.enable_net_options()
+    #     self.enable_toolbar_options()
 
     def disable_gui_features(self):
         self.disable_net_options()
