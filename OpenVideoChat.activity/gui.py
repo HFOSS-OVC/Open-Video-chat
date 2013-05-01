@@ -344,6 +344,7 @@ class Gui(Gtk.Grid):
             self.receive_message(self.chat_entry.get_text())# Temporary for Testing Non-Networked
             # self.activity.send_message(self.chat_entry.get_text())
             self.chat_entry.set_text("")
+            self.chat_entry.grab_focus()
 
 
     """ Event Connected Methods """
