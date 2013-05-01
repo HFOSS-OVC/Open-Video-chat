@@ -95,11 +95,11 @@ class Gui(Gtk.Grid):
     def build_video(self):
         # Prepare Video Display
         self.movie_window_preview = Gtk.DrawingArea()
-        self.movie_window = Gtk.DrawingArea()
+        self.movie_window_incoming = Gtk.DrawingArea()
 
         # Use Fixed to append overlays to an overlay
         video_fixed = Gtk.Fixed()
-        video_fixed.put(self.movie_window, 0, 0)
+        video_fixed.put(self.movie_window_incoming, 0, 0)
         video_fixed.put(self.movie_window_preview, 0, 0)
         video_fixed.set_halign(Gtk.Align.START)
         video_fixed.set_valign(Gtk.Align.START)
@@ -289,7 +289,7 @@ class Gui(Gtk.Grid):
         source.set_xwindow_id(self.movie_window_preview.get_property('window').get_xid())
 
     def render_incoming(self, source):
-        source.set_xwindow_id(self.movie_window.get_property('window').get_xid())
+        source.set_xwindow_id(self.movie_window_incoming.get_property('window').get_xid())
 
     def set_preview_size(self):
         # Resize Preview
@@ -303,9 +303,9 @@ class Gui(Gtk.Grid):
                     self.movie_window_preview.get_parent().get_parent().get_allocation().height * DEFAULT_PREVIEW_SIZE)
 
     def set_incoming_size(self):
-        self.movie_window.set_size_request(
-                self.movie_window.get_parent().get_parent().get_allocation().width,
-                self.movie_window.get_parent().get_parent().get_allocation().height)
+        self.movie_window_incoming.set_size_request(
+                self.movie_window_incoming.get_parent().get_parent().get_allocation().width,
+                self.movie_window_incoming.get_parent().get_parent().get_allocation().height)
 
     def toggle_preview_size(self):
         if self.movie_window_preview.get_size_request()[0] == -1:
