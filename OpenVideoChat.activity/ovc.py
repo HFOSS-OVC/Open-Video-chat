@@ -86,22 +86,24 @@ class OpenVideoChatActivity(Activity):
         self.gststack.build_incoming_pipeline()
         GObject.idle_add(self.gststack.start_stop_incoming_pipeline, True)
 
-    def can_close(self):
-        logger.debug("Shutting down Network and GST")
-        self.gststack.start_stop_incoming_pipeline(False)
-        self.gststack.start_stop_outgoing_pipeline(False)
-        return True
+    # Can Close is an override of the original and allows additional logic
+    # Should we call the parent can_close as well?
+    # def can_close(self):
+    #     # logger.debug("Shutting down Network and GST")
+    #     # self.gststack.start_stop_incoming_pipeline(False)
+    #     # self.gststack.start_stop_outgoing_pipeline(False)
+    #     return True
 
-    def _alert(self, title, text=None, timeout=5):
+    def alert(self, title, text=None, timeout=5):
         if text != None:
             alert = NotifyAlert(timeout=timeout)
             alert.props.title = title
             alert.props.msg = text
             self.add_alert(alert)
-            alert.connect('response', self._alert_cancel_cb)
+            alert.connect('response', self.alert_cancel_cb)
             alert.show()
 
-    def _alert_cancel_cb(self, alert, response_id):
+    def alert_cancel_cb(self, alert, response_id):
         self.remove_alert(alert)
 
     # def net_cb(self, src, args):
