@@ -45,7 +45,7 @@ logger = logging.getLogger('ovc-activity')
 # Constants
 MAX_MESSAGE_SIZE = 200
 MIN_CHAT_HEIGHT = 180
-DEFAULT_PREVIEW_SIZE = 25
+DEFAULT_PREVIEW_SIZE = 0.25
 
 
 class Gui(Gtk.Grid):
