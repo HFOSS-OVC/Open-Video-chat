@@ -274,9 +274,9 @@ class Gui(Gtk.Grid):
     def render_incoming(self, source):
         source.set_xwindow_id(self.movie_window.get_property('window').get_xid())
 
-    def toggle_preview_size(self):
-        # Toggle size of preview window!
-        if self.movie_window_preview_height:
+    def set_preview_size(self):
+        # Resize Preview
+        if self.movie_window_preview.get_size_request()[0] == -1:
             self.movie_window_preview.set_size_request(
                     self.movie_window_preview.get_parent().get_parent().get_allocation().width,
                     self.movie_window_preview.get_parent().get_parent().get_allocation().height)
@@ -284,24 +284,27 @@ class Gui(Gtk.Grid):
             self.movie_window_preview.set_size_request(
                     self.movie_window_preview.get_parent().get_parent().get_allocation().width * DEFAULT_PREVIEW_SIZE,
                     self.movie_window_preview.get_parent().get_parent().get_allocation().height * DEFAULT_PREVIEW_SIZE)
+
+    def set_incoming_size(self):
+        self.movie_window.set_size_request(
+                self.movie_window.get_parent().get_parent().get_allocation().width,
+                self.movie_window.get_parent().get_parent().get_allocation().height)
+
+    def toggle_preview_size(self):
+        if self.movie_window_preview.get_size_request()[0] == -1:
+            self.movie_window_preview.set_size_request(1, 1)
+        else:
+            self.movie_window_preview.set_size_request(-1, -1)
+
+        # Execute Resize Logic
+        self.set_preview_size()
 
     def resized(self):
         logger.debug("Resizing Video to match Display")
 
-        # Resize Preview
-        if self.movie_window_preview_height:
-            self.movie_window_preview.set_size_request(
-                    self.movie_window_preview.get_parent().get_parent().get_allocation().width * DEFAULT_PREVIEW_SIZE,
-                    self.movie_window_preview.get_parent().get_parent().get_allocation().height * DEFAULT_PREVIEW_SIZE)
-        else:
-            self.movie_window_preview.set_size_request(
-                    self.movie_window_preview.get_parent().get_parent().get_allocation().width,
-                    self.movie_window_preview.get_parent().get_parent().get_allocation().height)
-
-        # Resize Incoming
-        self.movie_window.set_size_request(
-                self.movie_window.get_parent().get_parent().get_allocation().width,
-                self.movie_window.get_parent().get_parent().get_allocation().height)
+        # Execute resize methods
+        self.set_incoming_size()
+        self.set_preview_size()
 
 
     """ Chat Methods """
