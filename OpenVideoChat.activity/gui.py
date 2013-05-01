@@ -337,6 +337,9 @@ class Gui(Gtk.Grid):
                 self.chat_text.get_end_iter(),
                 True)
 
+    def chat_write_line(self, line):
+        self.chat_text.insert(self.chat_text.get_end_iter(), line, -1)
+
     def receive_message(self, message):
         self.chat_text.insert(self.chat_text.get_end_iter(), "%s\n" % message, -1)
         self.text_view.scroll_to_iter(self.chat_text.get_end_iter(), 0.1, False, 0.0, 0.0)

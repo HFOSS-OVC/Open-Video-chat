@@ -62,37 +62,38 @@ class OpenVideoChatActivity(Activity):
         self.max_participants = SUGAR_MAX_PARTICIPANTS
 
 
-        ###########
-        # Setup Gui
-        ###########
+        """ Setup GUI """
         logger.debug("Preparing GUI")
         self.set_canvas(Gui(self))
 
 
-        #####################
-        # Setup Network Stack
-        #####################
+        """ Setup GSTStack """
+        logger.debug("Setting up GSTStack")
+        # self.gststack = GSTStack(self.get_canvas().render_preview, self.get_canvas().render_incoming)
+        # self.gststack.build_preview()
+        # self.gststack.build_incoming_pipeline()
+        # GObject.idle_add(self.gststack.start_stop_incoming_pipeline, True)
+
+        # self.get_canvas().set_gstreamer_stack(self.gstreamer_stack);
+
+
+        """ Setup Network Stack """
         logger.debug("Preparing Network Stack")
         # self.netstack = NetworkStack(self)
         # self._sh_hnd = self.connect('shared', self.netstack.shared_cb)
         # self._jo_hnd = self.connect('joined', self.netstack.joined_cb)
 
-        #################
-        # Setup Pipeline
-        #################
-        logger.debug("Setting up GSTStack")
-        self.gststack = GSTStack(self.get_canvas().render_preview, self.get_canvas().render_incoming)
-        self.gststack.build_preview()
-        self.gststack.build_incoming_pipeline()
-        GObject.idle_add(self.gststack.start_stop_incoming_pipeline, True)
+        # self.get_canvas().set_network_stack(self.network_stack)
 
-    # Can Close is an override of the original and allows additional logic
-    # Should we call the parent can_close as well?
-    # def can_close(self):
-    #     # logger.debug("Shutting down Network and GST")
-    #     # self.gststack.start_stop_incoming_pipeline(False)
-    #     # self.gststack.start_stop_outgoing_pipeline(False)
-    #     return True
+    # Automate Tear-Down of OVC Components
+    def can_close(self):
+        logger.debug("Shutting down Network and GST")
+        # self.gststack.start_stop_incoming_pipeline(False)
+        # self.gststack.start_stop_outgoing_pipeline(False)
+        return True
+
+
+    """ Automated Alert Handling """
 
     def alert(self, title, text=None, timeout=5):
         if text != None:
@@ -105,6 +106,28 @@ class OpenVideoChatActivity(Activity):
 
     def alert_cancel_cb(self, alert, response_id):
         self.remove_alert(alert)
+
+
+    """ Journal Save and Restore """
+
+    def write_file(self, file_path):
+        file = open(file_path, 'w')
+        try:
+            file.write(self.get_canvas().get_history())
+        finally:
+            file.close()
+
+    def read_file(self, file_path):
+        file = open(file_path)
+        try:
+            log = file.readline()
+            for line in log:
+                self.get_canvas().chat_write_line(line)
+        finally:
+            file.close()
+
+
+    """ Old Code To Be Removed """
 
     # def net_cb(self, src, args):
     #     """
@@ -194,14 +217,3 @@ class OpenVideoChatActivity(Activity):
     #     if handle:
     #         handle.receive_message("<%s> %s" % (prof, text))
 
-    # Save Chat Log to History
-    def write_file(self, file_path):
-        file = open(file_path, 'w')
-        file.write(self.get_canvas().get_history())
-        file.close()
-
-    # Load Chat Log from History
-    def read_file(self, file_path):
-        file = open(file_path, 'r')
-        self.get_canvas().receive_message(file.read())
-        file.close()
