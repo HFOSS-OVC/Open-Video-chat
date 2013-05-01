@@ -250,16 +250,17 @@ class Gui(Gtk.Grid):
         source.set_xwindow_id(self.movie_window.get_property('window').get_xid())
 
     def resized(self):
-        logger.debug("Display has been resized")
+        logger.debug("Resizing Video to match Display")
+
         # Resize Preview
         if self.movie_window_preview_height:
             self.movie_window_preview.set_size_request(
-                    self.movie_window_preview.get_parent().get_parent().get_allocation().width,
-                    self.movie_window_preview.get_parent().get_parent().get_allocation().height)
-        else:
-            self.movie_window_preview.set_size_request(
                     self.movie_window_preview.get_parent().get_parent().get_allocation().width * DEFAULT_PREVIEW_SIZE,
                     self.movie_window_preview.get_parent().get_parent().get_allocation().height * DEFAULT_PREVIEW_SIZE)
+        else:
+            self.movie_window_preview.set_size_request(
+                    self.movie_window_preview.get_parent().get_parent().get_allocation().width,
+                    self.movie_window_preview.get_parent().get_parent().get_allocation().height)
 
         # Resize Incoming
         self.movie_window.set_size_request(
@@ -288,9 +289,35 @@ class Gui(Gtk.Grid):
         self.settings_buttons["toggle_audio"].set_sensitive(False)
         self.settings_buttons["toggle_video"].set_sensitive(False)
 
-    def toggle_preview(self):
-        # Toggle Display
+    def toggle_preview_visibility(self):
+        # If visible hide
+        # If hidden show
 
-    def toggle_incoming(self):
-        # Toggle Display
+    def toggle_incoming_visibility(self):
+        # if visible hide
+        # If hidden make visible
+            # Hide & Show Preview
+
+
+
+    def toggle_preview_size(self):
+        # Toggle size of preview window!
+        if self.movie_window_preview_height:
+            self.movie_window_preview.set_size_request(
+                    self.movie_window_preview.get_parent().get_parent().get_allocation().width,
+                    self.movie_window_preview.get_parent().get_parent().get_allocation().height)
+        else:
+            self.movie_window_preview.set_size_request(
+                    self.movie_window_preview.get_parent().get_parent().get_allocation().width * DEFAULT_PREVIEW_SIZE,
+                    self.movie_window_preview.get_parent().get_parent().get_allocation().height * DEFAULT_PREVIEW_SIZE)
+
+
+    def set_network_stack(self, network_stack):
+        self.network_stack = network_stack
+        # Check status, apply listeners AND/OR begin setup
+
+    def set_gstreamer_stack(self, gstreamer_stack):
+        self.gstreamer_stack = gstreamer_stack
+        # MAYBE Execute checks depending on order of operations
+        # else only apply listeners
 
