@@ -138,14 +138,14 @@ class Gui(Gtk.Grid):
         self.chat_entry.set_max_length(MAX_MESSAGE_SIZE)
         self.chat_entry.connect("activate", self.send_message)
         self.chat_entry.set_hexpand(True)
-        send_button = Gtk.Button(_("Send"))
-        send_button.connect("clicked", self.send_message)
+        self.chat_send_button = Gtk.Button(_("Send"))
+        self.chat_send_button.connect("clicked", self.send_message)
 
         # Wrap expanded Entry and normal-sized Send buttons into Grid Row
         chat_grid = Gtk.Grid()
         chat_grid.attach(chat_history, 0, 0, 2, 1)
         chat_grid.attach(self.chat_entry, 0, 1, 1, 1)
-        chat_grid.attach(send_button, 1, 1, 1, 1)
+        chat_grid.attach(self.chat_send_button, 1, 1, 1, 1)
 
         # Chat expander allows visibly toggle-able container for all chat components
         chat_expander = Gtk.Expander()
@@ -258,9 +258,11 @@ class Gui(Gtk.Grid):
         self.disable_toolbar_options()
 
     def enable_net_options(self):
-        self.chat_entry.set_sensitive(true)
+        self.chat_send_button.set_sensitive(True)
+        self.chat_entry.set_sensitive(True)
 
     def disable_net_options(self):
+        self.chat_send_button.set_sensitive(False)
         self.chat_entry.set_sensitive(False)
 
     def enable_toolbar_options(self):
