@@ -211,7 +211,7 @@ class Gui(Gtk.Grid):
         self.toggle_audio(None)
         self.toolbar_toggle_preview_visibility()
 
-    def toggle_video(self, trigger):
+    def toggle_video(self, sender):
         # Update Button Icons
         if self.settings_buttons["toggle_video"].get_icon_name() == "activity-stop":
             self.settings_buttons["toggle_video"].set_icon_name("activity-start")
@@ -226,7 +226,7 @@ class Gui(Gtk.Grid):
         self.toggle_incoming_visibility()
         self.toggle_preview_size()
 
-    def toggle_audio(self, trigger):
+    def toggle_audio(self, sender):
         if self.settings_buttons["toggle_audio"].get_icon_name() == "speaker-000":
             self.settings_buttons["toggle_audio"].set_icon_name("speaker-100")
             self.settings_buttons["toggle_audio"].set_tooltip_text("Turn on Sound")
@@ -344,7 +344,7 @@ class Gui(Gtk.Grid):
         self.chat_text.insert(self.chat_text.get_end_iter(), "%s\n" % message, -1)
         self.text_view.scroll_to_iter(self.chat_text.get_end_iter(), 0.1, False, 0.0, 0.0)
 
-    def send_message(self, trigger):
+    def send_message(self, sender):
         if (self.chat_entry.get_text() != ""):
             self.receive_message(self.chat_entry.get_text())# Temporary for Testing Non-Networked
             # self.activity.send_message(self.chat_entry.get_text())
@@ -373,7 +373,7 @@ class Gui(Gtk.Grid):
 
     """ Hacky Solutions Below This Point """
 
-    def force_redraw(self, trigger):
+    def force_redraw(self, sender):
         # With fixed for overlay order of show() matters
         # This method may not be necessary with GSTStreamer 1.0 and was formerly marked as "FIXME:"
         self.toggle_incoming_visibility()
