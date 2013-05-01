@@ -38,10 +38,6 @@ from sugar3.activity.activity import Activity
 from gi.repository import GObject
 
 
-# Define Logger for Logging
-logger = logging.getLogger('ovc-activity')
-
-
 #Local Imports
 from gui import Gui
 from gst_stack import GSTStack
@@ -50,6 +46,11 @@ from network_stack import NetworkStack
 
 # Constants
 SUGAR_MAX_PARTICIPANTS = 2
+
+
+# Define Logger for Logging & DEBUG level for Development
+logger = logging.getLogger("ovc-" + __name__)
+logger.setLevel(logging.DEBUG)
 
 
 class OpenVideoChatActivity(Activity):

@@ -36,20 +36,15 @@ from gst_bins import AudioOutBin
 from gst_bins import VideoInBin
 from gst_bins import AudioInBin
 
-
-# Define Logger for Logging
-logger = logging.getLogger('ovc-activity')
-
-
-# Internal Imports
-
 #Define the limitations of the device
 CAPS = "video/x-raw,width=320,height=240,framerate=15/1"
 
 
-###########
-# GSTStack
-###########
+# Define Logger for Logging & DEBUG level for Development
+logger = logging.getLogger("ovc-" + __name__)
+logger.setLevel(logging.DEBUG)
+
+
 class GSTStack(object):
 
     def __init__(self, render_preview, render_incoming):

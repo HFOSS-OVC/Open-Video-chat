@@ -32,8 +32,9 @@ from sugar3.presence import presenceservice
 from sugar3.presence.tubeconn import TubeConnection
 
 
-# Define Logger for Logging
-logger = logging.getLogger('ovc-activity')
+# Define Logger for Logging & DEBUG level for Development
+logger = logging.getLogger("ovc-" + __name__)
+logger.setLevel(logging.DEBUG)
 
 
 class NetworkStack(object):

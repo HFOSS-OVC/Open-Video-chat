@@ -38,14 +38,15 @@ from sugar3.graphics.toolbarbox import ToolbarButton
 # from sugar.activity.activity import ActivityToolbox
 # from sugar.graphics.toolbutton import ToolButton
 
-# Define Logger for Logging
-logger = logging.getLogger('ovc-activity')
-
-
 # Constants
 MAX_MESSAGE_SIZE = 200
 MIN_CHAT_HEIGHT = 180
 DEFAULT_PREVIEW_SIZE = 0.25
+
+
+# Define Logger for Logging & DEBUG level for Development
+logger = logging.getLogger("ovc-" + __name__)
+logger.setLevel(logging.DEBUG)
 
 
 class Gui(Gtk.Grid):

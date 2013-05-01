@@ -28,13 +28,11 @@ gi.require_version('Gst', '1.0')
 from gi.repository import Gst
 
 
-# Define Logger for Logging
-logger = logging.getLogger('ovc-activity')
+# Define Logger for Logging & DEBUG level for Development
+logger = logging.getLogger("ovc-" + __name__)
+logger.setLevel(logging.DEBUG)
 
 
-##############
-# VideoOutBin
-##############
 class VideoOutBin(Gst.Bin):
     def __init__(self):
         super(VideoOutBin, self).__init__(ip)
