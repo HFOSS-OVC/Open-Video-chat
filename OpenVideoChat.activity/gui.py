@@ -77,6 +77,21 @@ class Gui(Gtk.Grid):
         # Status Message
         logger.debug("Finished Preparing GUI")
 
+
+    """ Resource Methods """
+
+    def set_network_stack(self, network_stack):
+        self.network_stack = network_stack
+        # Check status, apply listeners AND/OR begin setup
+
+    def set_gstreamer_stack(self, gstreamer_stack):
+        self.gstreamer_stack = gstreamer_stack
+        # MAYBE Execute checks depending on order of operations
+        # else only apply listeners
+
+
+    """ GUI Component Establishment """
+
     def build_video(self):
         # Prepare Video Display
         self.movie_window_preview = Gtk.DrawingArea()
@@ -190,82 +205,29 @@ class Gui(Gtk.Grid):
         self.toggle_audio(None)
 
     def toggle_video(self, trigger):
-
-        # Do I call self.resized() or some other thing?
-
+        # Update Button Icons
         if self.settings_buttons["toggle_video"].get_icon_name() == "activity-stop":
-            self.movie_window.hide()
-            # self.movie_window_preview_width, self.movie_window_preview_height = False, False
             self.settings_buttons["toggle_video"].set_icon_name("activity-start")
             self.settings_buttons["toggle_video"].set_tooltip_text("Start Video")
-            # Call to GStreamer to restart video
+            # Call to start incoming GStreamer to restart video
         else:
-            self.movie_window.show()
-
-            # Adjust this to use percent size?
-            # self.movie_window_preview_width, self.movie_window_preview_height = 320, 240
-
             self.settings_buttons["toggle_video"].set_icon_name("activity-stop")
             self.settings_buttons["toggle_video"].set_tooltip_text("Stop Video")
-            # Call to GStreamer to end video
+            # Call to stop incoming GStreamer to end video
+
+        # Toggle Incoming Visibility & Preview Size
+        self.toggle_incoming_visibility()
+        self.toggle_preview_size()
 
     def toggle_audio(self, trigger):
         if self.settings_buttons["toggle_audio"].get_icon_name() == "speaker-000":
             self.settings_buttons["toggle_audio"].set_icon_name("speaker-100")
             self.settings_buttons["toggle_audio"].set_tooltip_text("Turn on Sound")
-            # Call to GStreamer to restart audio
+            # Call to start GStreamer to restart audio
         else:
             self.settings_buttons["toggle_audio"].set_icon_name("speaker-000")
             self.settings_buttons["toggle_audio"].set_tooltip_text("Mute Sound")
-            # Call to GStreamer to end audio
-
-    def get_history(self):
-        return self.chat_text.get_text(
-                self.chat_text.get_start_iter(),
-                self.chat_text.get_end_iter(),
-                True)
-
-    def receive_message(self, message):
-        self.chat_text.insert(self.chat_text.get_end_iter(), "%s\n" % message, -1)
-        self.text_view.scroll_to_iter(self.chat_text.get_end_iter(), 0.1, False, 0.0, 0.0)
-
-    def send_message(self, trigger):
-        if (self.chat_entry.get_text() != ""):
-            self.receive_message(self.chat_entry.get_text())# Temporary for Testing Non-Networked
-            # self.activity.send_message(self.chat_entry.get_text())
-            self.chat_entry.set_text("")
-
-    def force_redraw(self, trigger):
-        # With fixed for overlay order of show() matters
-        # This method may not be necessary with GSTStreamer 1.0 and was formerly marked as "FIXME:"
-        self.movie_window.hide()
-        self.movie_window_preview.hide()
-        self.movie_window_preview.show()
-        self.movie_window.show()
-
-    def render_preview(self, source):
-        source.set_xwindow_id(self.movie_window_preview.get_property('window').get_xid())
-
-    def render_incoming(self, source):
-        source.set_xwindow_id(self.movie_window.get_property('window').get_xid())
-
-    def resized(self):
-        logger.debug("Resizing Video to match Display")
-
-        # Resize Preview
-        if self.movie_window_preview_height:
-            self.movie_window_preview.set_size_request(
-                    self.movie_window_preview.get_parent().get_parent().get_allocation().width * DEFAULT_PREVIEW_SIZE,
-                    self.movie_window_preview.get_parent().get_parent().get_allocation().height * DEFAULT_PREVIEW_SIZE)
-        else:
-            self.movie_window_preview.set_size_request(
-                    self.movie_window_preview.get_parent().get_parent().get_allocation().width,
-                    self.movie_window_preview.get_parent().get_parent().get_allocation().height)
-
-        # Resize Incoming
-        self.movie_window.set_size_request(
-                self.movie_window.get_parent().get_parent().get_allocation().width,
-                self.movie_window.get_parent().get_parent().get_allocation().height)
+            # Call to stop GStreamer to end audio
 
     def enable_gui_features(self):
         self.enable_net_options()
@@ -290,15 +252,27 @@ class Gui(Gtk.Grid):
         self.settings_buttons["toggle_video"].set_sensitive(False)
 
     def toggle_preview_visibility(self):
-        # If visible hide
-        # If hidden show
+        if self.movie_window_preview.get_visible():
+            self.movie_window_preview.hide()
+        else:
+            self.movie_window_preview.show()
 
     def toggle_incoming_visibility(self):
-        # if visible hide
-        # If hidden make visible
-            # Hide & Show Preview
+        if self.movie_window_incoming.get_visible():
+            self.movie_window_incoming.hide()
+        else:
+            self.movie_window_incoming.show()
+            self.movie_window_preview.hide()
+            self.movie_window_preview.show()
 
 
+    """ Video Methods """
+
+    def render_preview(self, source):
+        source.set_xwindow_id(self.movie_window_preview.get_property('window').get_xid())
+
+    def render_incoming(self, source):
+        source.set_xwindow_id(self.movie_window.get_property('window').get_xid())
 
     def toggle_preview_size(self):
         # Toggle size of preview window!
@@ -311,13 +285,55 @@ class Gui(Gtk.Grid):
                     self.movie_window_preview.get_parent().get_parent().get_allocation().width * DEFAULT_PREVIEW_SIZE,
                     self.movie_window_preview.get_parent().get_parent().get_allocation().height * DEFAULT_PREVIEW_SIZE)
 
+    def resized(self):
+        logger.debug("Resizing Video to match Display")
 
-    def set_network_stack(self, network_stack):
-        self.network_stack = network_stack
-        # Check status, apply listeners AND/OR begin setup
+        # Resize Preview
+        if self.movie_window_preview_height:
+            self.movie_window_preview.set_size_request(
+                    self.movie_window_preview.get_parent().get_parent().get_allocation().width * DEFAULT_PREVIEW_SIZE,
+                    self.movie_window_preview.get_parent().get_parent().get_allocation().height * DEFAULT_PREVIEW_SIZE)
+        else:
+            self.movie_window_preview.set_size_request(
+                    self.movie_window_preview.get_parent().get_parent().get_allocation().width,
+                    self.movie_window_preview.get_parent().get_parent().get_allocation().height)
 
-    def set_gstreamer_stack(self, gstreamer_stack):
-        self.gstreamer_stack = gstreamer_stack
-        # MAYBE Execute checks depending on order of operations
-        # else only apply listeners
+        # Resize Incoming
+        self.movie_window.set_size_request(
+                self.movie_window.get_parent().get_parent().get_allocation().width,
+                self.movie_window.get_parent().get_parent().get_allocation().height)
 
+
+    """ Chat Methods """
+
+    def get_history(self):
+        return self.chat_text.get_text(
+                self.chat_text.get_start_iter(),
+                self.chat_text.get_end_iter(),
+                True)
+
+    def receive_message(self, message):
+        self.chat_text.insert(self.chat_text.get_end_iter(), "%s\n" % message, -1)
+        self.text_view.scroll_to_iter(self.chat_text.get_end_iter(), 0.1, False, 0.0, 0.0)
+
+    def send_message(self, trigger):
+        if (self.chat_entry.get_text() != ""):
+            self.receive_message(self.chat_entry.get_text())# Temporary for Testing Non-Networked
+            # self.activity.send_message(self.chat_entry.get_text())
+            self.chat_entry.set_text("")
+
+
+    """ Event Connected Methods """
+
+
+
+
+    """ Hacky Solutions Below This Point """
+
+    def force_redraw(self, trigger):
+        # With fixed for overlay order of show() matters
+        # This method may not be necessary with GSTStreamer 1.0 and was formerly marked as "FIXME:"
+        self.toggle_incoming_visibility()
+        self.toggle_incoming_visibility()
+        self.toggle_preview_visibility()
+        self.toggle_preview_visibility()
