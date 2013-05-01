@@ -27,15 +27,19 @@
 
 #External Imports
 import logging
-import fcntl
-import array
-import socket
-import struct
-from sugar3 import profile
 from gettext import gettext as _
+from sugar3.presence import presenceservice
 from sugar3.graphics.alert import NotifyAlert
 from sugar3.activity.activity import Activity
-from gi.repository import GObject
+
+
+# Slated for possible removal
+# import fcntl
+# import array
+# import socket
+# import struct
+# from sugar3 import profile
+# from gi.repository import GObject
 
 
 #Local Imports

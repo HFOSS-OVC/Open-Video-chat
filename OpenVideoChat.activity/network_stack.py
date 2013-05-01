@@ -29,10 +29,14 @@
 import logging
 from telepathy.client import Connection
 from telepathy.client import Channel
-from sugar3.presence import presenceservice
 
+# from sugar3.presence import presenceservice
 
 # Questionable Imports
+# import fcntl
+# import array
+# import socket
+# import struct
 # import json
 # from telepathy.interfaces import CHANNEL_INTERFACE
 # from telepathy.interfaces import CHANNEL_INTERFACE_GROUP
