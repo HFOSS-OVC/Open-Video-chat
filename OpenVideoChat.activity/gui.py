@@ -178,6 +178,11 @@ class Gui(Gtk.Grid):
         self.settings_buttons["toggle_audio"].connect("clicked", self.toggle_audio)
         toolbar_box.toolbar.insert(self.settings_buttons["toggle_audio"], -1)
 
+        # Toggle Preview Display Button
+        self.settings_buttons["toggle_preview"] = ToolButton()
+        self.settings_buttons["toggle_preview"].connect("clicked", self.toolbar_toggle_preview_visibility)
+        toolbar_box.toolbar.insert(self.settings_buttons["toggle_preview"], -1)
+
         # Forced Refresh
         reload_video = ToolButton("view-refresh")
         reload_video.set_tooltip_text(_("Reload Video"))
@@ -203,6 +208,7 @@ class Gui(Gtk.Grid):
     def run_toggles(self):
         self.toggle_video(None)
         self.toggle_audio(None)
+        self.toolbar_toggle_preview_visibility()
 
     def toggle_video(self, trigger):
         # Update Button Icons
@@ -228,6 +234,17 @@ class Gui(Gtk.Grid):
             self.settings_buttons["toggle_audio"].set_icon_name("speaker-000")
             self.settings_buttons["toggle_audio"].set_tooltip_text("Mute Sound")
             # Call to stop GStreamer to end audio
+
+    def toolbar_toggle_preview_visibility(self):
+        if self.settings_buttons["toggle_preview"].get_icon_name() == "list-add":
+            self.settings_buttons["toggle_preview"].set_icon_name("list-remove")
+            self.settings_buttons["toggle_preview"].set_tooltip_text(_("Hide Preview Video"))
+        else:
+            self.settings_buttons["toggle_preview"].set_icon_name("list-add")
+            self.settings_buttons["toggle_preview"].set_tooltip_text(_("Show Preview Video"))
+
+        # Call Preview Visibility Toggle
+        self.toggle_preview_visibility()
 
     def enable_gui_features(self):
         self.enable_net_options()
