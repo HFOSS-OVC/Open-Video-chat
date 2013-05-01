@@ -54,18 +54,15 @@ class Gui(Gtk.Grid):
     def __init__(self, activity):
         Gtk.Grid.__init__(self)
 
-        # Set Activity
-        self.activity = activity
-
         # Set Activity Title
-        self.activity.set_title(_("OpenVideoChat"))
+        activity.set_title(_("OpenVideoChat"))
 
         # Add Video & Chat Containers
         self.add(self.build_video())
         self.attach(self.build_chat(), 0, 1, 1, 1)
 
-        # Append Toolbar
-        self.activity.set_toolbar_box(self.build_toolbar())
+        # Create & Apply Toolbar to Activity
+        activity.set_toolbar_box(self.build_toolbar(activity))
 
         # Add Resize Event
         self.connect('check-resize', self.resized)
@@ -160,30 +157,30 @@ class Gui(Gtk.Grid):
         # Return entire expander
         return chat_expander
 
-    def build_toolbar(self):
+    def build_toolbar(self, activity):
         # Prepare Primary Toolbar Container
         toolbar_box = ToolbarBox();
 
         # Create activity button
-        toolbar_box.toolbar.insert(ActivityButton(self.activity), -1)
-
-        # Storage for Toggle Buttons
-        self.settings_buttons = {}
+        toolbar_box.toolbar.insert(ActivityButton(activity), -1)
 
         # Video Toggle
-        self.settings_buttons["toggle_video"] = ToolButton()
-        self.settings_buttons["toggle_video"].connect("clicked", self.toggle_video)
-        toolbar_box.toolbar.insert(self.settings_buttons["toggle_video"], -1)
+        video_toggle_button = ToolButton()
+        video_toggle_button.connect("clicked", self.toggle_video)
+        toolbar_box.toolbar.insert(video_toggle_button, 1)
+        self.toggle_video(video_toggle_button)
 
         # Audio Toggle
-        self.settings_buttons["toggle_audio"] = ToolButton()
-        self.settings_buttons["toggle_audio"].connect("clicked", self.toggle_audio)
-        toolbar_box.toolbar.insert(self.settings_buttons["toggle_audio"], -1)
+        audio_toggle_button = ToolButton()
+        audio_toggle_button.connect("clicked", self.toggle_audio)
+        toolbar_box.toolbar.insert(audio_toggle_button, 2)
+        self.toggle_audio(audio_toggle_button)
 
         # Toggle Preview Display Button
-        self.settings_buttons["toggle_preview"] = ToolButton()
-        self.settings_buttons["toggle_preview"].connect("clicked", self.toolbar_toggle_preview_visibility)
-        toolbar_box.toolbar.insert(self.settings_buttons["toggle_preview"], -1)
+        preview_toggle_button = ToolButton()
+        preview_toggle_button.connect("clicked", self.toolbar_toggle_preview_visibility)
+        toolbar_box.toolbar.insert(preview_toggle_button, 3)
+        self.toolbar_toggle_preview_visibility(preview_toggle_button)
 
         # Forced Refresh
         reload_video = ToolButton("view-refresh")
@@ -198,61 +195,64 @@ class Gui(Gtk.Grid):
         toolbar_box.toolbar.insert(separator, -1)
 
         # Create stop button
-        toolbar_box.toolbar.insert(StopButton(self.activity), -1)
+        toolbar_box.toolbar.insert(StopButton(activity), -1)
 
-        # Run Toggles to assign defaults
-        self.run_toggles()
+        # Add reference to toolbar items
+        self.toolbar = toolbar_box.toolbar
 
         # Display all components & Return
         toolbar_box.show_all()
         return toolbar_box
 
-    def run_toggles(self):
-        self.toggle_video(None)
-        self.toggle_audio(None)
-        self.toolbar_toggle_preview_visibility()
+    def toggle_video(self, sender=None):
+        # Grab Button if not supplied
+        if sender == None:
+            self.toolbar.get_nth_item(1)
 
-    def toggle_video(self, sender):
-        # Update Button Icons
-        if self.settings_buttons["toggle_video"].get_icon_name() == "activity-stop":
-            self.settings_buttons["toggle_video"].set_icon_name("activity-start")
-            self.settings_buttons["toggle_video"].set_tooltip_text("Start Video")
+        # Update Button Icon & Process Change to Video
+        if (sender.get_icon_name() == "activity-stop"):
+            sender.set_icon_name("activity-start")
+            sender.set_tooltip_text(_("Start Video"))
             # Call to start incoming GStreamer to restart video
         else:
-            self.settings_buttons["toggle_video"].set_icon_name("activity-stop")
-            self.settings_buttons["toggle_video"].set_tooltip_text("Stop Video")
+            sender.set_icon_name("activity-stop")
+            sender.set_tooltip_text(_("Stop Video"))
             # Call to stop incoming GStreamer to end video
 
         # Toggle Incoming Visibility & Preview Size
         self.toggle_incoming_visibility()
         self.toggle_preview_size()
 
-    def toggle_audio(self, sender):
-        if self.settings_buttons["toggle_audio"].get_icon_name() == "speaker-000":
-            self.settings_buttons["toggle_audio"].set_icon_name("speaker-100")
-            self.settings_buttons["toggle_audio"].set_tooltip_text("Turn on Sound")
+    def toggle_audio(self, sender=None):
+        # Grab Button if not supplied
+        if sender == None:
+            self.toolbar.get_nth_item(2)
+
+        # Update Button Icon & Process Change to Audio
+        if sender.get_icon_name() == "speaker-000":
+            sender.set_icon_name("speaker-100")
+            sender.set_tooltip_text(_("Turn on Sound"))
             # Call to start GStreamer to restart audio
         else:
-            self.settings_buttons["toggle_audio"].set_icon_name("speaker-000")
-            self.settings_buttons["toggle_audio"].set_tooltip_text("Mute Sound")
+            sender.set_icon_name("speaker-000")
+            sender.set_tooltip_text(_("Mute Sound"))
             # Call to stop GStreamer to end audio
 
-    def toolbar_toggle_preview_visibility(self):
-        if self.settings_buttons["toggle_preview"].get_icon_name() == "list-add":
-            self.settings_buttons["toggle_preview"].set_icon_name("list-remove")
-            self.settings_buttons["toggle_preview"].set_tooltip_text(_("Hide Preview Video"))
+    def toolbar_toggle_preview_visibility(self, sender=None):
+        # Grab Button if not supplied
+        if sender == None:
+            self.toolbar.get_nth_item(3)
+
+        # Update Button Icon
+        if sender.get_icon_name() == "list-add":
+            sender.set_icon_name("list-remove")
+            sender.set_tooltip_text(_("Hide Preview Video"))
         else:
-            self.settings_buttons["toggle_preview"].set_icon_name("list-add")
-            self.settings_buttons["toggle_preview"].set_tooltip_text(_("Show Preview Video"))
+            sender.set_icon_name("list-add")
+            sender.set_tooltip_text(_("Show Preview Video"))
 
         # Call Preview Visibility Toggle
         self.toggle_preview_visibility()
-
-    # There may not be any situation where all items would need to be enabled at once
-    # As each enable is situation specific, while disable is setup specific
-    # def enable_gui_features(self):
-    #     self.enable_net_options()
-    #     self.enable_toolbar_options()
 
     def disable_gui_features(self):
         self.disable_net_options()
@@ -268,12 +268,12 @@ class Gui(Gtk.Grid):
         self.chat_entry.set_sensitive(False)
 
     def enable_toolbar_options(self):
-        self.settings_buttons["toggle_audio"].set_sensitive(True)
-        self.settings_buttons["toggle_video"].set_sensitive(True)
+        self.toolbar.get_nth_item(1).set_sensitive(True)
+        self.toolbar.get_nth_item(2).set_sensitive(True)
 
     def disable_toolbar_options(self):
-        self.settings_buttons["toggle_audio"].set_sensitive(False)
-        self.settings_buttons["toggle_video"].set_sensitive(False)
+        self.toolbar.get_nth_item(1).set_sensitive(False)
+        self.toolbar.get_nth_item(2).set_sensitive(False)
 
     def toggle_preview_visibility(self):
         if self.movie_window_preview.get_visible():
