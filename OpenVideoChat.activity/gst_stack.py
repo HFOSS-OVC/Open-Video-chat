@@ -23,7 +23,7 @@
 .. moduleauthor:: Remy DeCausemaker <remyd@civx.us>
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
 .. moduleauthor:: Caleb Coffie <CalebCoffie@gmail.com>
-.. moduleauthor:: Casey DeLorme <CalebCoffie@rit.edu>
+.. moduleauthor:: Casey DeLorme <cxd4280@rit.edu>
 """
 
 # External Imports
