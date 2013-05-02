@@ -69,7 +69,8 @@ class Gui(Gtk.Grid):
         self.connect('check-resize', self.resized)
 
         # Disable GUI Components until network connections established
-        self.disable_gui_features()
+        self.disable_net_options()
+        self.disable_gst_options()
 
         # Display GUI
         self.show()
@@ -81,13 +82,27 @@ class Gui(Gtk.Grid):
     """ Resource Methods """
 
     def set_network_stack(self, network_stack):
+        logger.debug("Network Stack has been supplied.")
+
+        # Apply Network Stack for Local Use
         self.network_stack = network_stack
-        # Check status, apply listeners AND/OR begin setup
+        self.buddy_handler = None
+
+        # Connect to Buddies
+        if len(network_stack.shared_activity.get_joined_buddies()) > 0:
+            self.buddy_joined(network_stack.shared_activity, network_stack.shared_activity.get_joined_buddies()[0])
+        else:
+            self.buddy_handler = network_stack.shared_activity.connect("buddy-joined", self.buddy_joined)
+
 
     def set_gstreamer_stack(self, gstreamer_stack):
+        logger.debug("GST Stack has been supplied.")
+
+        # Set local GST Access
         self.gstreamer_stack = gstreamer_stack
-        # MAYBE Execute checks depending on order of operations
-        # else only apply listeners
+
+        # Establish Preview Window Logic & Tie Event Listener
+
 
 
     """ GUI Component Establishment """
@@ -195,7 +210,7 @@ class Gui(Gtk.Grid):
         separator.set_expand(True)
         toolbar_box.toolbar.insert(separator, -1)
 
-        # Create Sharing Button
+        # Create Share Button
         toolbar_box.toolbar.insert(ShareButton(activity), -1)
 
         # Create stop button
@@ -258,10 +273,6 @@ class Gui(Gtk.Grid):
         # Call Preview Visibility Toggle
         self.toggle_preview_visibility()
 
-    def disable_gui_features(self):
-        self.disable_net_options()
-        self.disable_toolbar_options()
-
     def enable_net_options(self):
         self.chat_send_button.set_sensitive(True)
         self.chat_entry.set_sensitive(True)
@@ -271,11 +282,11 @@ class Gui(Gtk.Grid):
         self.chat_send_button.set_sensitive(False)
         self.chat_entry.set_sensitive(False)
 
-    def enable_toolbar_options(self):
+    def enable_gst_options(self):
         self.toolbar.get_nth_item(1).set_sensitive(True)
         self.toolbar.get_nth_item(2).set_sensitive(True)
 
-    def disable_toolbar_options(self):
+    def disable_gst_options(self):
         self.toolbar.get_nth_item(1).set_sensitive(False)
         self.toolbar.get_nth_item(2).set_sensitive(False)
 
@@ -354,20 +365,42 @@ class Gui(Gtk.Grid):
         if self.chat_entry.get_text() != "":
             message = self.chat_entry.get_text()
             self.receive_message(self.network_stack.username, message)
-            self.network_stack.send_message(message)
+            # self.network_stack.send_message(message)
             self.chat_entry.set_text("")
             self.chat_entry.grab_focus()
 
 
     """ Event Connected Methods """
 
-    def connected_to_network(self):
-        # Handle Establishing Connection
-        return False
+    def buddy_joined(self, shared_activity, buddy):
+        # Disconnect Handler if exists
+        if self.buddy_handler is not None:
+            shared_activity.disconnect(self.buddy_handler)
 
-    def disconnected_from_network(self):
-        # Handle Deconstructing Connection
-        return False
+        # Post message about connected buddy
+        self.receive_message(buddy.props.nick, "connected to service.")
+
+        # Enable Chat GUI Components
+        self.enable_net_options()
+
+        # Send Buddy our IP
+
+        # Connect Disconnect Handler
+        self.buddy_handler = shared_activity.connect('buddy-left', self.buddy_left)
+
+    def buddy_left(self, shared_activity, buddy):
+        # Disconnect Handler
+        if self.buddy_handler is not None:
+            shared_activity.disconnect(self.buddy_handler)
+
+        # Message that buddy left
+        self.receive_message(buddy.props.nick, "has disconnected.")
+
+        # Disable GUI
+        self.disable_net_options()
+
+        # Add Buddy Joined Listener
+        self.buddy_handler = shared_activity.connect('buddy-joined', self.buddy_left)
 
     def connect_incoming_movie(self):
         # Handle Incoming Construction

@@ -29,8 +29,8 @@
 import logging
 from telepathy.client import Connection
 from telepathy.client import Channel
-
 # from sugar3.presence import presenceservice
+
 
 # Questionable Imports
 # import fcntl
@@ -59,49 +59,25 @@ class NetworkStack(object):
         # Establish other stuff
         logger.info("Hello from Network Stack")
 
-    def joined_cb(self, sender):
-        # Test Confirmation who is sender
-        logger.debug(dir(sender));
-
-        # Disconnect Sharing Handler if found
-        if sender.sharing_handler:
-            sender.disconnect(sender.sharing_handler)
-
-        # Execute setup
-        self.setup(sender)
-
-    def shared_cb(self, sender):
-        # Test Confirmation who is sender
-        logger.debug(dir(sender));
-
-        # Disconnect Sharing Handler if found
-        if sender.sharing_handler:
-            sender.disconnect(sender.sharing_handler)
-
-        # Execute setup
-        self.setup(sender)
-
     def setup(self, activity):
+
+        # Grab Shared Activity Reference
+        self.shared_activity = activity.shared_activity
 
         # Grab Username & Apply Owner
         self.owner = activity.owner
         if self.owner.nick:
             self.username = self.owner.nick
 
-        # If a member is connected locally we want to set them locally
+    def get_user_ip(self):
+        logger.debug("Getting IP Address")
 
-        # Run Exchange of IP Address
+    def close(self):
+        logger.debug("Closing Network Stack")
+        # Close Telepathy Connection
 
-        # if sender.shared_activity:
-        #     for buddy in sender.shared_activity.get_joined_buddies():
-        #         logger.debug(dir(buddy))# Test
-        #         # Call Method
-        # else:
-        #     # Establish Handler
-
-        # Check for existing connections
-
-        # Else establish singular buddy-connect handler
+    def connect(self, text_channel, connection):
+        logger.debug("Creating Connection")
 
 
     # def add_buddy(self, buddy):
