@@ -37,8 +37,7 @@ from sugar3.graphics.toolbutton import ToolButton
 from sugar3.graphics.toolbarbox import ToolbarBox
 from sugar3.activity.widgets import ActivityButton
 from sugar3.graphics.toolbarbox import ToolbarButton
-# from sugar.activity.activity import ActivityToolbox
-# from sugar.graphics.toolbutton import ToolButton
+
 
 # Constants
 MAX_MESSAGE_SIZE = 200
@@ -87,6 +86,9 @@ class Gui(Gtk.Grid):
         # Apply Network Stack for Local Use
         self.network_stack = network_stack
         self.buddy_handler = None
+
+        # Establish Network Channel Connection
+        network_stack.connect(self.receive_message)
 
         # Connect to Buddies
         if len(network_stack.shared_activity.get_joined_buddies()) > 0:
@@ -365,7 +367,7 @@ class Gui(Gtk.Grid):
         if self.chat_entry.get_text() != "":
             message = self.chat_entry.get_text()
             self.receive_message(self.network_stack.username, message)
-            # self.network_stack.send_message(message)
+            self.network_stack.send_message(message)
             self.chat_entry.set_text("")
             self.chat_entry.grab_focus()
 

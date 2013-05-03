@@ -87,7 +87,7 @@ class OpenVideoChatActivity(Activity):
 
     def share_activity_internals(self, sender):
         # Create Network Stack
-        sender.network_stack = NetworkStack()
+        sender.network_stack = NetworkStack(self.get_buddy)
 
         # Disconnect Sharing Handler
         sender.disconnect(sender.sharing_handler)
@@ -101,10 +101,17 @@ class OpenVideoChatActivity(Activity):
     # Automate Tear-Down of OVC Components
     def can_close(self):
         logger.debug("Shutting down Network and GST")
-        self.network_stack.close()
+        if self.network_stack is not None:
+            self.network_stack.close()
         # self.gststack.start_stop_incoming_pipeline(False)
         # self.gststack.start_stop_outgoing_pipeline(False)
         return True
+
+    # Get buddy from Sugar presence and Telepathy
+    def get_buddy(self, handle):
+        pservice = presenceservice.get_instance()
+        tp_name, tp_path = pservice.get_preferred_connection()
+        return pservice.get_buddy_by_telepathy_handle(tp_name, tp_path, handle)
 
 
     """ Automated Alert Handling """
