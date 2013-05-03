@@ -41,19 +41,20 @@ logger.setLevel(logging.DEBUG)
 
 class NetworkStack(object):
 
-    def __init__(self, get_buddy):
+    def __init__(self):
         # Establish Default Properties
         self.chan = None
         self.owner = None
         self.shared_activity = None
         self.username = None
         self.receive_message_callback = None
-        self.get_buddy = get_buddy
 
-    def setup(self, activity):
-
+    def setup(self, activity, get_buddy):
         # Grab Shared Activity Reference
         self.shared_activity = activity.shared_activity
+
+        # Add get_buddy reference
+        self.get_buddy = get_buddy
 
         # Grab Username & Apply Owner
         self.owner = activity.owner
@@ -61,15 +62,14 @@ class NetworkStack(object):
             self.username = self.owner.nick
 
     def close(self):
-        logger.debug("Closing Network Stack")
-        # Close & Unset Telepathy Connection
-        try:
-            if self.chan is not None:
-                self.chan[CHANNEL_INTERFACE].close()
-        except Exception:
-            logger.debug("Unable to close channel")
-        finally:
-            self.chan = None
+        # Delete Telepathy Connection Reference
+        self.chan = None
+        # try:
+        #     if self.chan is not None:
+        #         self.chan[CHANNEL_INTERFACE].Close()
+        # except Exception:
+        #     logger.debug("Unable to close channel")
+        # finally:
 
     def connect(self, receive_message_callback):
         logger.debug("Creating Connection")
@@ -89,15 +89,12 @@ class NetworkStack(object):
                 self.receive_message)
 
     def send_message(self, message):
-        logger.debug("Sending Message")
         if self.chan is not None:
             self.chan[CHANNEL_TYPE_TEXT].Send(
                     CHANNEL_TEXT_MESSAGE_TYPE_NORMAL,
                     message)
 
     def receive_message(self, identity, timestamp, sender, type_, flags, message):
-        logger.debug("Received Message over Network")
-
         # Exclude any auxiliary messages
         if type_ != 0:
             return

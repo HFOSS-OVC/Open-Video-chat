@@ -56,6 +56,10 @@ class OpenVideoChatActivity(Activity):
         # Self-Enforced max_participants
         self.max_participants = SUGAR_MAX_PARTICIPANTS
 
+        # Prepare Storage Components
+        self.network_stack = None
+        self.gstreamer_stack = None
+
         # Set Owner
         self.owner = presenceservice.get_instance().get_owner()
 
@@ -87,13 +91,13 @@ class OpenVideoChatActivity(Activity):
 
     def share_activity_internals(self, sender):
         # Create Network Stack
-        sender.network_stack = NetworkStack(self.get_buddy)
+        sender.network_stack = NetworkStack()
 
         # Disconnect Sharing Handler
         sender.disconnect(sender.sharing_handler)
 
         # Setup Network Components
-        sender.network_stack.setup(sender)
+        sender.network_stack.setup(sender, sender.get_buddy)
 
         # Supply Network Stack to GUI
         sender.get_canvas().set_network_stack(sender.network_stack)

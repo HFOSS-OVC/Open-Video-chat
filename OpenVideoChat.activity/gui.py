@@ -96,7 +96,6 @@ class Gui(Gtk.Grid):
         else:
             self.buddy_handler = network_stack.shared_activity.connect("buddy-joined", self.buddy_joined)
 
-
     def set_gstreamer_stack(self, gstreamer_stack):
         logger.debug("GST Stack has been supplied.")
 
@@ -104,7 +103,6 @@ class Gui(Gtk.Grid):
         self.gstreamer_stack = gstreamer_stack
 
         # Establish Preview Window Logic & Tie Event Listener
-
 
 
     """ GUI Component Establishment """
@@ -380,7 +378,7 @@ class Gui(Gtk.Grid):
             shared_activity.disconnect(self.buddy_handler)
 
         # Post message about connected buddy
-        self.receive_message(buddy.props.nick, "connected to service.")
+        self.receive_message(buddy.props.nick, _("connected to service."))
 
         # Enable Chat GUI Components
         self.enable_net_options()
@@ -396,7 +394,7 @@ class Gui(Gtk.Grid):
             shared_activity.disconnect(self.buddy_handler)
 
         # Message that buddy left
-        self.receive_message(buddy.props.nick, "has disconnected.")
+        self.receive_message(buddy.props.nick, _("has disconnected."))
 
         # Disable GUI
         self.disable_net_options()
