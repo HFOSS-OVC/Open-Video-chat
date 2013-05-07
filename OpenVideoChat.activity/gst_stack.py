@@ -151,10 +151,11 @@ class GSTStack(object):
         # Link Video Bin to Tee Element
         self._video_local_tee.link(self._video_out_bin)
 
-        # # Connect to pipeline bus for signals.
-        # bus = self._out_pipeline.get_bus()
-        # bus.add_signal_watch()
-        # bus.enable_sync_message_emission()
+        # Connect to pipeline bus for signals.
+        bus = self._out_pipeline.get_bus()
+        bus.add_signal_watch()
+        bus.enable_sync_message_emission()
+        return bus
 
         # def on_message(bus, message):
         #     """
@@ -198,10 +199,11 @@ class GSTStack(object):
         self._in_pipeline.add(self._video_in_bin)
         self._in_pipeline.add(self._audio_in_bin)
 
-        # # Connect to pipeline bus for signals.
-        # bus = self._in_pipeline.get_bus()
-        # bus.add_signal_watch()
-        # bus.enable_sync_message_emission()
+        # Connect to pipeline bus for signals.
+        bus = self._in_pipeline.get_bus()
+        bus.add_signal_watch()
+        bus.enable_sync_message_emission()
+        return bus
 
         # def on_message(bus, message):
         #     """
