@@ -3,15 +3,16 @@
 import logging
 import gi
 gi.require_version('Gst', '1.0')
-from gi.repository import Gst, GstVideo, GdkX11
+from gi.repository import Gst, GstVideo
 
 
 #Define the limitations of the device
-# CAPS = "video/x-raw,width=320,height=240,framerate=15/1"
-CAPS = "video/x-raw,width=900,height=400,framerate=15/1"
+CAPS = "video/x-raw,width=320,height=240,framerate=15/1"
+# CAPS = "video/x-raw,width=1024,height=768,framerate=15/1"
+
 
 # Define Logger for Logging & DEBUG level for Development
-logger = logging.getLogger("ovc-" + __name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
@@ -34,7 +35,6 @@ class GSTStack(object):
         video_queue = Gst.ElementFactory.make("queue", None)
         video_convert = Gst.ElementFactory.make("videoconvert", None)
         ximage_sink = Gst.ElementFactory.make("ximagesink", "video-output")
-
 
         """ Create Pipeline """
         self.pipe = Gst.Pipeline()
@@ -71,11 +71,15 @@ class GSTStack(object):
         """ Begin Playing """
         self.pipe.set_state(Gst.State.PLAYING)
 
+        # External Reference
+        self.video_caps = video_caps
+
         """ Return Pipeline Bus """
         return self.pipe.get_bus()
 
     # Handle Errors and End of Stream
     def on_message(self, bus, message):
+        logger.debug(message.type)
         if message.type == Gst.MessageType.EOS:
             logger.debug("End of Stream, Close Pipeline")
         elif message.type == Gst.MessageType.ERROR:
@@ -84,3 +88,15 @@ class GSTStack(object):
                 logger.debug("Error: %s" % err, debug)
             except Exception:
                 logger.debug("Unable to identify message error.")
+
+    def change_resolution(self, width, height):
+        logger.debug("Trying")
+        # Apparently state change is between paused and playing, caps can't be changed during the transition?
+        # logger.debug(self.pipe.get_state(1000))
+        # self.video_caps.set_property('caps', Gst.caps_from_string("video/x-raw,width=" + str(width) + ",height=" + str(height) + ",framerate=15/1"))
+
+    def toggle_playback(self):
+        if self.pipe.get_state(1000)[1] == Gst.State.PLAYING:
+            self.pipe.set_state(Gst.State.NULL)
+        else:
+            self.pipe.set_state(Gst.State.PLAYING)

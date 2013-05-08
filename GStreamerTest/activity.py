@@ -4,13 +4,14 @@ from gettext import gettext as _
 import logging
 
 # Sugar
-from sugar3.activity.activity import Activity
-from sugar3.graphics.toolbarbox import ToolbarBox
+from sugar3.activity.widgets import DescriptionItem
 from sugar3.activity.widgets import ActivityButton
+from sugar3.graphics.toolbarbox import ToolbarBox
+from sugar3.graphics.toolbutton import ToolButton
+from sugar3.activity.widgets import ShareButton
 from sugar3.activity.widgets import TitleEntry
 from sugar3.activity.widgets import StopButton
-from sugar3.activity.widgets import ShareButton
-from sugar3.activity.widgets import DescriptionItem
+from sugar3.activity.activity import Activity
 
 # GStreamer
 from gi.repository import Gtk
@@ -23,9 +24,9 @@ logger.setLevel(logging.DEBUG)
 class TestWindow(Activity):
 
     def __init__(self, handler):
-	Activity.__init__(self, handler)
-	self.max_participants = 1
-	self.setup_toolbar()
+    Activity.__init__(self, handler)
+    self.max_participants = 1
+    self.setup_toolbar()
 
         # Create Drawing Area
         self.draw = Gtk.DrawingArea()
@@ -48,6 +49,9 @@ class TestWindow(Activity):
         # Attach to Preview
         self.bus.connect("sync-message::element", self.draw_preview)
 
+        # Try Changing Caps (SUCCESS!)
+        self.gst.change_resolution(self.draw.get_allocation().width, self.draw.get_allocation().height)
+
     def draw_preview(self, bus, message):
         if message.get_structure() is None:
             return
@@ -56,17 +60,20 @@ class TestWindow(Activity):
         if message.get_structure().get_name() == "prepare-window-handle":
             message.src.set_window_handle(self.draw.get_window().get_xid())
 
-        # # Size DrawingArea to Fit
-        # self.draw.set_size_request(
-        #         self.draw.get_parent().get_parent().get_allocation().width,
-        #         self.draw.get_parent().get_parent().get_allocation().height)
-
-
     def setup_toolbar(self):
         toolbar_box = ToolbarBox()
         activity_button = ActivityButton(self)
         toolbar_box.toolbar.insert(activity_button, 0)
         activity_button.show()
+
+        # Test Button
+        video_toggle_button = ToolButton()
+        video_toggle_button.connect("clicked", self.test_toggle)
+        video_toggle_button.set_icon_name('activity-start')
+        video_toggle_button.set_tooltip_text('Toggle Video Size')
+        toolbar_box.toolbar.insert(video_toggle_button, 1)
+        video_toggle_button.show()
+
         separator = Gtk.SeparatorToolItem()
         separator.props.draw = False
         separator.set_expand(True)
@@ -77,4 +84,8 @@ class TestWindow(Activity):
         stop_button.show()
         self.set_toolbar_box(toolbar_box)
         toolbar_box.show()
+
+    def test_toggle(self, sender):
+        # Try Turning Video on/off (SUCCESS!)
+        self.gst.toggle_playback()
 
