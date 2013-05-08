@@ -41,7 +41,7 @@ CAPS = "video/x-raw,width=320,height=240,framerate=15/1"
 
 
 # Define Logger for Logging & DEBUG level for Development
-logger = logging.getLogger("ovc-" + __name__)
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
