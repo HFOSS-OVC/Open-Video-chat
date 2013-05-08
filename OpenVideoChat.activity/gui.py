@@ -103,7 +103,13 @@ class Gui(Gtk.Grid):
         self.gstreamer_stack = gstreamer_stack
 
         # Establish Preview Window Logic & Tie Event Listener
+        if self.movie_window_preview.get_realized():
+            self.render_preview
+        else:
+            self.movie_window_preview.connect('realize', self.render_preview)
 
+        # Supply incoming window to GStreamer
+        self.render_incoming()
 
     """ GUI Component Establishment """
 
@@ -307,11 +313,11 @@ class Gui(Gtk.Grid):
 
     """ Video Methods """
 
-    def render_preview(self, source):
-        source.set_xwindow_id(self.movie_window_preview.get_property('window').get_xid())
+    def render_preview(self, sender):
+        self.gstreamer_stack.build_preview(self.movie_window_preview.get_window().get_xid())
 
-    def render_incoming(self, source):
-        source.set_xwindow_id(self.movie_window_incoming.get_property('window').get_xid())
+    def render_incoming(self, sender):
+        self.gstreamer_stack.set_incoming_window(self.movie_window_incoming.get_window().get_xid())
 
     def set_preview_size(self):
         # Resize Preview
