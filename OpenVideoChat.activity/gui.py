@@ -102,14 +102,17 @@ class Gui(Gtk.Grid):
         # Set local GST Access
         self.gstreamer_stack = gstreamer_stack
 
-        # Establish Preview Window Logic & Tie Event Listener
+        # Supply preview window when able
         if self.movie_window_preview.get_realized():
             self.render_preview
         else:
             self.movie_window_preview.connect('realize', self.render_preview)
 
-        # Supply incoming window to GStreamer
-        self.render_incoming()
+        # Supply incoming window when able
+        if self.movie_window_incoming.get_realized():
+            self.render_incoming()
+        else:
+            self.movie_window_incoming.connect('realize', self.render_incoming)
 
     """ GUI Component Establishment """
 
