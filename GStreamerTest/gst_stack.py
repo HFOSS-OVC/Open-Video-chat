@@ -8,7 +8,7 @@ from gi.repository import Gst, GstVideo, GdkX11
 
 #Define the limitations of the device
 # CAPS = "video/x-raw,width=320,height=240,framerate=15/1"
-CAPS = "video/x-raw,width=640,height=480,framerate=15/1"
+CAPS = "video/x-raw,width=900,height=400,framerate=15/1"
 
 # Define Logger for Logging & DEBUG level for Development
 logger = logging.getLogger("ovc-" + __name__)
@@ -26,19 +26,22 @@ class GSTStack(object):
 
         """ Prepare Elements """
         video_source = Gst.ElementFactory.make('autovideosrc', "video-source")
+        videoscale = Gst.ElementFactory.make("videoscale", None)
+        videoscale.set_property('add-borders', True)
         video_rate = Gst.ElementFactory.make('videorate', None)
         video_caps = Gst.ElementFactory.make("capsfilter", None)
         video_caps.set_property("caps", Gst.caps_from_string(CAPS))
         video_queue = Gst.ElementFactory.make("queue", None)
         video_convert = Gst.ElementFactory.make("videoconvert", None)
         ximage_sink = Gst.ElementFactory.make("ximagesink", "video-output")
-        # logger.debug(dir(ximage_sink))
+
 
         """ Create Pipeline """
         self.pipe = Gst.Pipeline()
 
         """ Add Elements to Pipeline """
         self.pipe.add(video_source)
+        self.pipe.add(videoscale)
         self.pipe.add(video_rate)
         self.pipe.add(video_caps)
         self.pipe.add(video_queue)
@@ -46,7 +49,8 @@ class GSTStack(object):
         self.pipe.add(ximage_sink)
 
         """ Connect Elements """
-        video_source.link(video_rate)
+        video_source.link(videoscale)
+        videoscale.link(video_rate)
         video_rate.link(video_caps)
         video_caps.link(video_queue)
         video_queue.link(video_convert)
