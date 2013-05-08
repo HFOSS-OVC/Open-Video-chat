@@ -3,7 +3,7 @@
 import logging
 import gi
 gi.require_version('Gst', '1.0')
-from gi.repository import Gst, GstVideo
+from gi.repository import Gst, GstVideo, GObject
 
 
 #Define the limitations of the device
@@ -27,12 +27,12 @@ class GSTStack(object):
 
         """ Prepare Elements """
         video_source = Gst.ElementFactory.make('autovideosrc', "video-source")
-        videoscale = Gst.ElementFactory.make("videoscale", None)
-        videoscale.set_property('add-borders', True)
         video_rate = Gst.ElementFactory.make('videorate', None)
+        # video_scale = Gst.ElementFactory.make("videoscale", None)
+        # video_scale.set_property('add-borders', True)
         video_caps = Gst.ElementFactory.make("capsfilter", None)
         video_caps.set_property("caps", Gst.caps_from_string(CAPS))
-        video_queue = Gst.ElementFactory.make("queue", None)
+        # video_queue = Gst.ElementFactory.make("queue", None)
         video_convert = Gst.ElementFactory.make("videoconvert", None)
         ximage_sink = Gst.ElementFactory.make("ximagesink", "video-output")
 
@@ -41,19 +41,21 @@ class GSTStack(object):
 
         """ Add Elements to Pipeline """
         self.pipe.add(video_source)
-        self.pipe.add(videoscale)
         self.pipe.add(video_rate)
+        # self.pipe.add(video_scale)
         self.pipe.add(video_caps)
-        self.pipe.add(video_queue)
+        # self.pipe.add(video_queue)
         self.pipe.add(video_convert)
         self.pipe.add(ximage_sink)
 
         """ Connect Elements """
-        video_source.link(videoscale)
-        videoscale.link(video_rate)
+        video_source.link(video_rate)
         video_rate.link(video_caps)
-        video_caps.link(video_queue)
-        video_queue.link(video_convert)
+        # video_rate.link(video_scale)
+        # video_scale.link(video_caps)
+        video_caps.link(video_convert)
+        # video_caps.link(video_queue)
+        # video_queue.link(video_convert)
         video_convert.link(ximage_sink)
 
         # Grab the Bus
@@ -74,12 +76,19 @@ class GSTStack(object):
         # External Reference
         self.video_caps = video_caps
 
+        # Threaded Idle Stack?
+        # GObject.idle_add(self.pipe, True)
+
         """ Return Pipeline Bus """
         return self.pipe.get_bus()
 
     # Handle Errors and End of Stream
     def on_message(self, bus, message):
-        logger.debug(message.type)
+
+        # logger.debug(message.type)
+        if message.type == Gst.MessageType.STATE_CHANGED:
+            logger.debug(message.parse_state_changed())
+
         if message.type == Gst.MessageType.EOS:
             logger.debug("End of Stream, Close Pipeline")
         elif message.type == Gst.MessageType.ERROR:

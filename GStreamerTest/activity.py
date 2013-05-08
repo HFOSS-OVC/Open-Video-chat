@@ -1,7 +1,7 @@
 
 # External
-from gettext import gettext as _
 import logging
+from gettext import gettext as _
 
 # Sugar
 from sugar3.activity.widgets import DescriptionItem
@@ -14,19 +14,25 @@ from sugar3.activity.widgets import StopButton
 from sugar3.activity.activity import Activity
 
 # GStreamer
-from gi.repository import Gtk
+from gi.repository import Gtk, GObject
 from gst_stack import GSTStack
 
 # Create Logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+
 class TestWindow(Activity):
 
     def __init__(self, handler):
-    Activity.__init__(self, handler)
-    self.max_participants = 1
-    self.setup_toolbar()
+        Activity.__init__(self, handler)
+
+        # Begin Threading
+        GObject.threads_init()
+
+        # Setup Activity
+        self.max_participants = 1
+        self.setup_toolbar()
 
         # Create Drawing Area
         self.draw = Gtk.DrawingArea()
@@ -88,4 +94,3 @@ class TestWindow(Activity):
     def test_toggle(self, sender):
         # Try Turning Video on/off (SUCCESS!)
         self.gst.toggle_playback()
-
