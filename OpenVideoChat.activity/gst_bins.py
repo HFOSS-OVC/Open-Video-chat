@@ -109,7 +109,7 @@ class VideoInBin(Gst.Bin):
         # Video Source
         video_src = Gst.ElementFactory.make("udpsrc", None)
         video_src.set_property("port", 5004)
-        video_src.set_property("caps", VIDEO_RTP_CAPS)
+        video_src.set_property("caps", Gst.caps_from_string(VIDEO_RTP_CAPS))
         self.add(video_src)
 
         # RTP Theora Depay
@@ -145,7 +145,7 @@ class AudioInBin(Gst.Bin):
         # Audio Source
         audio_src = Gst.ElementFactory.make("udpsrc", None)
         audio_src.set_property("port", 5005)
-        audio_src.set_property("caps", AUDIO_RTP_CAPS)
+        audio_src.set_property("caps", Gst.caps_from_string(AUDIO_RTP_CAPS))
         self.add(audio_src)
 
         # RTP Opus Depay

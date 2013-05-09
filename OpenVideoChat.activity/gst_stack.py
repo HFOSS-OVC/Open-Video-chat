@@ -47,7 +47,7 @@ logger.setLevel(logging.DEBUG)
 
 class GSTStack(object):
 
-    def __init__(self, render_preview, render_incoming):
+    def __init__(self):
         Gst.init(None)
         self._out_pipeline = None
         self._in_pipeline = None

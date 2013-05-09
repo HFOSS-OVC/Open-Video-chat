@@ -69,12 +69,13 @@ class OpenVideoChatActivity(Activity):
 
         """ Setup GSTStack """
         logger.debug("Setting up GSTStack")
-        # self.gststack = GSTStack(self.get_canvas().render_preview, self.get_canvas().render_incoming)
-        # self.gststack.build_preview()
-        # self.gststack.build_incoming_pipeline()
-        # GObject.idle_add(self.gststack.start_stop_incoming_pipeline, True)
+        self.gststack = GSTStack()
+        self.gststack.build_preview() #ip and xid needs passed to build_preview()
+        self.gststack.set_incoming_window() #xid need passed here for incoming window
+        self.gststack.build_incoming_pipeline()
+        GObject.idle_add(self.gststack.start_stop_incoming_pipeline, True)
 
-        # self.get_canvas().set_gstreamer_stack(self.gstreamer_stack);
+        self.get_canvas().set_gstreamer_stack(self.gstreamer_stack);
 
         """ Setup Network Stack """
         logger.debug("Connect Event to Setup Network Stack on Demand")
