@@ -49,15 +49,18 @@ class GSTStack(object):
 
     def __init__(self, render_preview, render_incoming):
         Gst.init(None)
-        self.render_preview = render_preview
-        self.render_incoming = render_incoming
         self._out_pipeline = None
         self._in_pipeline = None
         self._audio_out_bin = None
         self._video_out_bin = None
         self._audio_in_bin = AudioInBin()
         self._video_in_bin = VideoInBin()
+        self._incoming_window_xid = None
         self._video_local_tee = Gst.ElementFactory.make("tee", None)
+
+    #Set incoming window xid
+    def set_incoming_window(self, xid):
+        self._incoming_window_xid = xid
 
     #Toggle Video State (args are on or off)
     def toggle_video_state(self, start=True):
@@ -81,7 +84,7 @@ class GSTStack(object):
                 self._audio_out_bin.set_state(Gst.State.NULL)
 
     #Build Preview
-    def build_preview(self):
+    def build_preview(self, ip, xid):
          #Checks if there is outgoing pipeline already
         if self._out_pipeline != None:
             print "WARNING: outgoing pipeline exists"
@@ -89,6 +92,9 @@ class GSTStack(object):
 
         # Start Outgoing pipeline
         self._out_pipeline = Gst.Pipeline()
+
+        self.xid = xid
+        self.ip = ip
 
         print "BUILDING PREVIEW"
 
@@ -133,10 +139,12 @@ class GSTStack(object):
         video_queue.link(video_convert)
         video_convert.link(ximage_sink)
 
+        build_outgoing_pipeline(self.ip, self.xid)
+
 
 
     #Outgoing Pipeline
-    def build_outgoing_pipeline(self, ip):
+    def build_outgoing_pipeline(self, ip, xid):
 
         print "Building outgoing pipeline UDP to %s" % self.ip
 
@@ -155,31 +163,30 @@ class GSTStack(object):
         bus = self._out_pipeline.get_bus()
         bus.add_signal_watch()
         bus.enable_sync_message_emission()
-        return bus
 
-        # def on_message(bus, message):
-        #     """
-        #     This method handles errors on the video bus and then stops
-        #     the pipeline.
-        #     """
-        #     t = message.type
-        #     if t == Gst.MessageType.EOS:
-        #         self._out_pipeline.set_state(Gst.State.NULL)
-        #     elif t == Gst.MessageType.ERROR:
-        #         err, debug = message.parse_error()
-        #         print "Error: %s" % err, debug
-        #         self._out_pipeline.set_state(Gst.State.NULL)
+        def on_message(bus, message):
+            """
+            This method handles errors on the video bus and then stops
+            the pipeline.
+            """
+            t = message.type
+            if t == Gst.MessageType.EOS:
+                self._out_pipeline.set_state(Gst.State.NULL)
+            elif t == Gst.MessageType.ERROR:
+                err, debug = message.parse_error()
+                print "Error: %s" % err, debug
+                self._out_pipeline.set_state(Gst.State.NULL)
 
-        # def on_sync_message(bus, message):
-        #     if message.structure is None:
-        #         return
+        def on_sync_message(bus, message):
+            if message.structure is None:
+                return
 
-        #     if message.structure.get_name() == "prepare-xwindow-id":
-        #         # Assign the viewport
-        #         self.render_preview(message.src)
+            if message.structure.get_name() == "prepare-window-handle":
+                # Assign the viewport
+                message.src.set_window_handle(xid)
 
-        # bus.connect("message", on_message)
-        # bus.connect("sync-message::element", on_sync_message)
+        bus.connect("message", on_message)
+        bus.connect("sync-message::element", on_sync_message)
 
 
 
@@ -203,31 +210,30 @@ class GSTStack(object):
         bus = self._in_pipeline.get_bus()
         bus.add_signal_watch()
         bus.enable_sync_message_emission()
-        return bus
 
-        # def on_message(bus, message):
-        #     """
-        #     This method handles errors on the video bus and then stops
-        #     the pipeline.
-        #     """
-        #     t = message.type
-        #     if t == Gst.MessageType.EOS:
-        #         self._in_pipeline.set_state(Gst.State.NULL)
-        #     elif t == Gst.MessageType.ERROR:
-        #         err, debug = message.parse_error()
-        #         print "Error: %s" % err, debug
-        #         self._in_pipeline.set_state(Gst.State.NULL)
+        def on_message(bus, message):
+            """
+            This method handles errors on the video bus and then stops
+            the pipeline.
+            """
+            t = message.type
+            if t == Gst.MessageType.EOS:
+                self._in_pipeline.set_state(Gst.State.NULL)
+            elif t == Gst.MessageType.ERROR:
+                err, debug = message.parse_error()
+                print "Error: %s" % err, debug
+                self._in_pipeline.set_state(Gst.State.NULL)
 
-        # def on_sync_message(bus, message):
-        #     if message.structure is None:
-        #         return
+        def on_sync_message(bus, message):
+            if message.structure is None:
+                return
 
-        #     if message.structure.get_name() == "prepare-xwindow-id":
-        #         # Assign the viewport
-        #         self.render_incoming(message.src)
+            if message.structure.get_name() == "prepare-window-handle":
+                # Assign the viewport
+                message.src.set_window_handle(self._incoming_window_xid)
 
-        # bus.connect("message", on_message)
-        # bus.connect("sync-message::element", on_sync_message)
+        bus.connect("message", on_message)
+        bus.connect("sync-message::element", on_sync_message)
 
     def start_stop_outgoing_pipeline(self, start=True):
         if self._out_pipeline != None:
