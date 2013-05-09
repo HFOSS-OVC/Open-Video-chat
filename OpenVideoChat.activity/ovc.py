@@ -72,10 +72,6 @@ class OpenVideoChatActivity(Activity):
         """ Setup GSTStack """
         logger.debug("Setting up GSTStack")
         self.gststack = GSTStack()
-        #self.gststack.build_incoming_pipeline()
-        #self.gststack.build_outgoing_pipeline() #need ip for argument
-        #GObject.idle_add(self.gststack.start_stop_incoming_pipeline, True)
-
         self.get_canvas().set_gstreamer_stack(self.gststack);
 
         """ Setup Network Stack """

@@ -58,6 +58,91 @@ class GSTStack(object):
         self._incoming_window_xid = None
         self._video_local_tee = Gst.ElementFactory.make("tee", None)
 
+    # Temporary Working Output
+    def build_working_preview(self, handle):
+
+        """ Prepare Elements """
+        video_source = Gst.ElementFactory.make('autovideosrc', "video-source")
+        video_rate = Gst.ElementFactory.make('videorate', None)
+        video_scale = Gst.ElementFactory.make("videoscale", None)
+        video_scale.set_property('add-borders', True)
+        video_caps = Gst.ElementFactory.make("capsfilter", None)
+        # "video/x-raw,width=320,height=240,framerate=15/1"
+        video_caps.set_property("caps", Gst.caps_from_string(CAPS))
+        video_convert = Gst.ElementFactory.make("videoconvert", None)
+        ximage_sink = Gst.ElementFactory.make("ximagesink", "video-output")
+
+        """ Create Pipeline """
+        self.pipe = Gst.Pipeline()
+
+        """ Add Elements to Pipeline """
+        self.pipe.add(video_source)
+        self.pipe.add(video_rate)
+        self.pipe.add(video_scale)
+        self.pipe.add(video_caps)
+        self.pipe.add(video_convert)
+        self.pipe.add(ximage_sink)
+
+        """ Connect Elements """
+        video_source.link(video_rate)
+        video_rate.link(video_scale)
+        video_scale.link(video_caps)
+        video_caps.link(video_convert)
+        video_convert.link(ximage_sink)
+
+        # Grab the Bus
+        bus = self.pipe.get_bus()
+
+        # Listen to signals (messages) on bus
+        bus.add_signal_watch()
+
+        # Synchronously handle video transmission messages
+        bus.enable_sync_message_emission()
+
+        # Handler for EOS & Errors
+        bus.connect('message', self.on_message)
+
+        # Attach Rendering
+        bus.connect("sync-message::element", self.draw_preview)
+
+        """ Begin Playing """
+        self.pipe.set_state(Gst.State.PLAYING)
+
+        # External Reference
+        self.video_caps = video_caps
+
+        """ Return Pipeline Bus """
+        return self.pipe.get_bus()
+
+    # Handle Errors and End of Stream
+    def on_message(self, bus, message):
+
+        # logger.debug(message.type)
+        if message.type == Gst.MessageType.STATE_CHANGED:
+            logger.debug(message.parse_state_changed())
+
+        if message.type == Gst.MessageType.EOS:
+            logger.debug("End of Stream, Close Pipeline")
+        elif message.type == Gst.MessageType.ERROR:
+            try:
+                err, debug = message.parse_error()
+                logger.debug("Error: %s" % err, debug)
+            except Exception:
+                logger.debug("Unable to identify message error.")
+
+    def draw_preview(self, bus, message):
+        if message.get_structure() is None:
+            return
+
+        # Capture the new GStreamer handle request
+        if message.get_structure().get_name() == "prepare-window-handle":
+            message.src.set_window_handle(self.draw.get_window().get_xid())
+
+
+
+    """ Newer Incomplete Code Below """
+
+
     #Set incoming window xid
     def set_incoming_window(self, xid):
         self._incoming_window_xid = xid

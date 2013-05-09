@@ -321,7 +321,10 @@ class Gui(Gtk.Grid):
     """ Video Methods """
 
     def render_preview(self, sender):
-        self.gstreamer_stack.build_preview(self.movie_window_preview.get_window().get_xid())
+        self.gstreamer_stack.build_working_preview(self.movie_window_preview.get_window().get_xid())
+        # self.movie_window_preview.get_allocation().width,
+        # self.movie_window_preview.get_allocation().height
+
 
     def render_incoming(self, sender):
         logger.debug("Temporarily Stairs")
