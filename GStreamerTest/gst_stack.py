@@ -7,7 +7,7 @@ from gi.repository import Gst, GstVideo
 
 
 #Define the limitations of the device
-CAPS = "video/x-raw,width=320,height=240,framerate=15/1"
+CAPS = "video/x-raw,width=1024,height=768,framerate=15/1"
 # CAPS = "video/x-raw,width=1024,height=768,framerate=15/1"
 
 
@@ -28,8 +28,8 @@ class GSTStack(object):
         """ Prepare Elements """
         video_source = Gst.ElementFactory.make('autovideosrc', "video-source")
         video_rate = Gst.ElementFactory.make('videorate', None)
-        # video_scale = Gst.ElementFactory.make("videoscale", None)
-        # video_scale.set_property('add-borders', True)
+        video_scale = Gst.ElementFactory.make("videoscale", None)
+        video_scale.set_property('add-borders', True)
         video_caps = Gst.ElementFactory.make("capsfilter", None)
         video_caps.set_property("caps", Gst.caps_from_string(CAPS))
         # video_queue = Gst.ElementFactory.make("queue", None)
@@ -42,7 +42,7 @@ class GSTStack(object):
         """ Add Elements to Pipeline """
         self.pipe.add(video_source)
         self.pipe.add(video_rate)
-        # self.pipe.add(video_scale)
+        self.pipe.add(video_scale)
         self.pipe.add(video_caps)
         # self.pipe.add(video_queue)
         self.pipe.add(video_convert)
@@ -50,9 +50,9 @@ class GSTStack(object):
 
         """ Connect Elements """
         video_source.link(video_rate)
-        video_rate.link(video_caps)
-        # video_rate.link(video_scale)
-        # video_scale.link(video_caps)
+        # video_rate.link(video_caps)
+        video_rate.link(video_scale)
+        video_scale.link(video_caps)
         video_caps.link(video_convert)
         # video_caps.link(video_queue)
         # video_queue.link(video_convert)
