@@ -109,34 +109,36 @@ class Gui(Gtk.Grid):
             self.movie_window_preview.connect('realize', self.render_preview)
 
         # Supply incoming window when able
-        if self.movie_window_incoming.get_realized():
-            self.render_incoming()
-        else:
-            self.movie_window_incoming.connect('realize', self.render_incoming)
+        # if self.movie_window_incoming.get_realized():
+        #     self.render_incoming()
+        # else:
+        #     self.movie_window_incoming.connect('realize', self.render_incoming)
 
     """ GUI Component Establishment """
 
     def build_video(self):
         # Prepare Video Display
         self.movie_window_preview = Gtk.DrawingArea()
-        self.movie_window_incoming = Gtk.DrawingArea()
+        # self.movie_window_incoming = Gtk.DrawingArea()
 
         # Use Fixed to append overlays to an overlay
-        video_fixed = Gtk.Fixed()
-        video_fixed.put(self.movie_window_incoming, 0, 0)
-        video_fixed.put(self.movie_window_preview, 0, 0)
-        video_fixed.set_halign(Gtk.Align.START)
-        video_fixed.set_valign(Gtk.Align.START)
-        self.movie_window_preview.show()
-        video_fixed.show()
+        # video_fixed = Gtk.Fixed()
+        # video_fixed.put(self.movie_window_incoming, 0, 0)
+        # video_fixed.put(self.movie_window_preview, 0, 0)
+        # video_fixed.set_halign(Gtk.Align.START)
+        # video_fixed.set_valign(Gtk.Align.START)
+        #self.movie_window_preview.show()
+        #video_fixed.show()
+
 
         # Use event box for background coloring
         video_eventbox = Gtk.EventBox()
         video_eventbox.override_background_color(Gtk.StateType.NORMAL, Gdk.RGBA(.01,.01,.01,.8))
         video_eventbox.set_hexpand(True)
         video_eventbox.set_vexpand(True)
-        video_eventbox.add(video_fixed)
-        video_eventbox.show()
+        # video_eventbox.add(video_fixed)
+        video_eventbox.add(self.movie_window_preview)
+        video_eventbox.show_all()
 
         # Return Overlay Container
         return video_eventbox
@@ -307,12 +309,13 @@ class Gui(Gtk.Grid):
             self.movie_window_preview.show()
 
     def toggle_incoming_visibility(self):
-        if self.movie_window_incoming.get_visible():
-            self.movie_window_incoming.hide()
-        else:
-            self.movie_window_incoming.show()
-            self.movie_window_preview.hide()
-            self.movie_window_preview.show()
+        logger.debug("Temporarily Stairs")
+        # if self.movie_window_incoming.get_visible():
+        #     self.movie_window_incoming.hide()
+        # else:
+        #     self.movie_window_incoming.show()
+        #     self.movie_window_preview.hide()
+        #     self.movie_window_preview.show()
 
 
     """ Video Methods """
@@ -321,7 +324,8 @@ class Gui(Gtk.Grid):
         self.gstreamer_stack.build_preview(self.movie_window_preview.get_window().get_xid())
 
     def render_incoming(self, sender):
-        self.gstreamer_stack.set_incoming_window(self.movie_window_incoming.get_window().get_xid())
+        logger.debug("Temporarily Stairs")
+        # self.gstreamer_stack.set_incoming_window(self.movie_window_incoming.get_window().get_xid())
 
     def set_preview_size(self):
         # Resize Preview
@@ -335,9 +339,10 @@ class Gui(Gtk.Grid):
                     self.movie_window_preview.get_parent().get_parent().get_allocation().height * DEFAULT_PREVIEW_SIZE)
 
     def set_incoming_size(self):
-        self.movie_window_incoming.set_size_request(
-                self.movie_window_incoming.get_parent().get_parent().get_allocation().width,
-                self.movie_window_incoming.get_parent().get_parent().get_allocation().height)
+        logger.debug("Temporarily Stairs")
+        # self.movie_window_incoming.set_size_request(
+        #         self.movie_window_incoming.get_parent().get_parent().get_allocation().width,
+        #         self.movie_window_incoming.get_parent().get_parent().get_allocation().height)
 
     def toggle_preview_size(self):
         if self.movie_window_preview.get_size_request()[0] == -1:
