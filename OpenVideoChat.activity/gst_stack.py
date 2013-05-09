@@ -58,7 +58,6 @@ class GSTStack(object):
         self._video_in_bin = VideoInBin()
         self._incoming_window_xid = None
         self._video_local_tee = Gst.ElementFactory.make("tee", None)
-        Gdk.idle_add(start_stop_incoming_pipeline, True)
 
     #Set incoming window xid
     def set_incoming_window(self, xid):
