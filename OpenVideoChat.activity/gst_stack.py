@@ -84,7 +84,7 @@ class GSTStack(object):
                 self._audio_out_bin.set_state(Gst.State.NULL)
 
     #Build Preview
-    def build_preview(self, ip, xid):
+    def build_preview(self, xid):
          #Checks if there is outgoing pipeline already
         if self._out_pipeline != None:
             print "WARNING: outgoing pipeline exists"
@@ -94,7 +94,6 @@ class GSTStack(object):
         self._out_pipeline = Gst.Pipeline()
 
         self.xid = xid
-        self.ip = ip
 
         print "BUILDING PREVIEW"
 
@@ -139,26 +138,6 @@ class GSTStack(object):
         video_queue.link(video_convert)
         video_convert.link(ximage_sink)
 
-        build_outgoing_pipeline(self.ip, self.xid)
-
-
-
-    #Outgoing Pipeline
-    def build_outgoing_pipeline(self, ip, xid):
-
-        print "Building outgoing pipeline UDP to %s" % self.ip
-
-        # Set Bin IPs
-        self._video_out_bin = VideoOutBin(ip)
-        self._audio_out_bin = AudioOutBin(ip)
-
-        # Add Video/Audio Out Bin to Pipeline
-        self._out_pipeline.add(self._video_out_bin)
-        self._out_pipeline.add(self._audio_out_bin)
-
-        # Link Video Bin to Tee Element
-        self._video_local_tee.link(self._video_out_bin)
-
         # Connect to pipeline bus for signals.
         bus = self._out_pipeline.get_bus()
         bus.add_signal_watch()
@@ -187,6 +166,23 @@ class GSTStack(object):
 
         bus.connect("message", on_message)
         bus.connect("sync-message::element", on_sync_message)
+
+
+    #Outgoing Pipeline
+    def build_outgoing_pipeline(self, ip):
+
+        print "Building outgoing pipeline UDP to %s" % self.ip
+
+        # Set Bin IPs
+        self._video_out_bin = VideoOutBin(ip)
+        self._audio_out_bin = AudioOutBin(ip)
+
+        # Add Video/Audio Out Bin to Pipeline
+        self._out_pipeline.add(self._video_out_bin)
+        self._out_pipeline.add(self._audio_out_bin)
+
+        # Link Video Bin to Tee Element
+        self._video_local_tee.link(self._video_out_bin)
 
 
 

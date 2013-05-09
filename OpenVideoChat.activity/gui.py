@@ -104,7 +104,7 @@ class Gui(Gtk.Grid):
 
         # Supply preview window when able
         if self.movie_window_preview.get_realized():
-            self.render_preview
+            self.render_preview()
         else:
             self.movie_window_preview.connect('realize', self.render_preview)
 
