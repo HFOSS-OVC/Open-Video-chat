@@ -14,8 +14,9 @@ from sugar3.activity.widgets import StopButton
 from sugar3.activity.activity import Activity
 
 # GStreamer
-from gi.repository import Gtk, GObject
+from gi.repository import Gtk, Gdk
 from gst_stack import GSTStack
+Gdk.threads_init()
 
 # Create Logger
 logger = logging.getLogger(__name__)
@@ -26,9 +27,6 @@ class TestWindow(Activity):
 
     def __init__(self, handler):
         Activity.__init__(self, handler)
-
-        # Begin Threading
-        GObject.threads_init()
 
         # Setup Activity
         self.max_participants = 1
