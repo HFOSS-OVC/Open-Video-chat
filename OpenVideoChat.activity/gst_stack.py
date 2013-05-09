@@ -31,7 +31,7 @@ import logging
 import gi
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst, Gdk
-Gdk.thread_init()
+Gdk.threads_init()
 from gst_bins import VideoOutBin
 from gst_bins import AudioOutBin
 from gst_bins import VideoInBin
