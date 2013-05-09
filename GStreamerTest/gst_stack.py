@@ -3,7 +3,7 @@
 import logging
 import gi
 gi.require_version('Gst', '1.0')
-from gi.repository import Gst, GstVideo, GObject
+from gi.repository import Gst, GstVideo
 
 
 #Define the limitations of the device
@@ -75,9 +75,6 @@ class GSTStack(object):
 
         # External Reference
         self.video_caps = video_caps
-
-        # Threaded Idle Stack?
-        # GObject.idle_add(self.pipe, True)
 
         """ Return Pipeline Bus """
         return self.pipe.get_bus()
