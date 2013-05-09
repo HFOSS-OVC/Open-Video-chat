@@ -127,7 +127,7 @@ class Gui(Gtk.Grid):
         video_fixed.put(self.movie_window_preview, 0, 0)
         video_fixed.set_halign(Gtk.Align.START)
         video_fixed.set_valign(Gtk.Align.START)
-        video_fixed.show()
+        video_fixed.show_all()
 
         # Use event box for background coloring
         video_eventbox = Gtk.EventBox()
@@ -135,7 +135,7 @@ class Gui(Gtk.Grid):
         video_eventbox.set_hexpand(True)
         video_eventbox.set_vexpand(True)
         video_eventbox.add(video_fixed)
-        video_eventbox.show()
+        video_eventbox.show_all()
 
         # Return Overlay Container
         return video_eventbox
