@@ -30,7 +30,8 @@
 import logging
 import gi
 gi.require_version('Gst', '1.0')
-from gi.repository import Gst
+from gi.repository import Gst, Gdk
+Gdk.thread_init()
 from gst_bins import VideoOutBin
 from gst_bins import AudioOutBin
 from gst_bins import VideoInBin
@@ -57,6 +58,7 @@ class GSTStack(object):
         self._video_in_bin = VideoInBin()
         self._incoming_window_xid = None
         self._video_local_tee = Gst.ElementFactory.make("tee", None)
+        Gdk.idle_add(start_stop_incoming_pipeline, True)
 
     #Set incoming window xid
     def set_incoming_window(self, xid):
